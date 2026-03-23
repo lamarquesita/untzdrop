@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: #111111;
+  --color-foreground: #ffffff;
+  --color-primary: #EA580B;
+  --color-surface: #181818;
+  --color-surface-border: #2A2A2A;
+  --color-border: #2A2A2A;
+  --color-border-subtle: #2A2A2A;
+  --color-muted: #888888;
+  --color-muted-dark: #555555;
+  --color-text-dim: #777777;
+  --color-text-faint: #aaaaaa;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scrollbar-gutter: stable;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.btn-tag {
+  clip-path: polygon(
+    0% 0%,
+    calc(100% - 1.05em) 0%,
+    100% 1.05em,
+    100% 100%,
+    1.05em 100%,
+    0% calc(100% - 1.05em)
+  );
+}
+
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+/* ─── Bass drop easter egg ─── */
+@keyframes bass-shake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-4px, 2px) rotate(-0.5deg); }
+  20% { transform: translate(4px, -2px) rotate(0.5deg); }
+  30% { transform: translate(-3px, 3px) rotate(-0.3deg); }
+  40% { transform: translate(3px, -1px) rotate(0.3deg); }
+  50% { transform: translate(-2px, 1px) rotate(-0.2deg); }
+  60% { transform: translate(2px, -1px) rotate(0.2deg); }
+  70% { transform: translate(-1px, 1px) rotate(-0.1deg); }
+  80% { transform: translate(1px, 0) rotate(0.1deg); }
+  90% { transform: translate(0, -1px) rotate(0); }
+}
+
+.bass-drop-shake {
+  animation: bass-shake 0.6s ease-out;
+}
+
+.btn-tag-sm {
+  clip-path: polygon(
+    0% 0%,
+    calc(100% - 10px) 0%,
+    100% 10px,
+    100% 100%,
+    10px 100%,
+    0% calc(100% - 10px)
+  );
 }

@@ -157,15 +157,15 @@ export default function Hero() {
       {/* Background layers */}
       <AudioWave className="opacity-30" />
 
-      {/* ═══ MOBILE: Centered hero with search ═══ */}
+      {/* ═══ MOBILE: Centered hero ═══ */}
       <motion.div
-        className="relative z-10 md:hidden text-center"
+        className="relative z-10 md:hidden text-center flex flex-col items-center"
         variants={staggerContainer(0.12, 0.1)}
         initial="hidden"
         animate="visible"
       >
         <motion.h1
-          className="text-[26px] font-medium leading-[1.0] tracking-[-1.5px] mb-3 font-[family-name:var(--font-chakra)]"
+          className="text-[36px] font-medium leading-[1.0] tracking-[-1.8px] mb-4 font-[family-name:var(--font-chakra)]"
           variants={fadeUpBlur}
           transition={springs.gentle}
         >
@@ -174,27 +174,45 @@ export default function Hero() {
         </motion.h1>
 
         <motion.p
-          className="text-muted text-[12px] leading-[18px] mb-5 mx-auto max-w-[280px] font-[family-name:var(--font-chakra)]"
+          className="text-muted text-[14px] leading-[20px] mb-6 mx-auto max-w-[320px] font-[family-name:var(--font-chakra)]"
           variants={fadeUp}
           transition={springs.smooth}
         >
+          La plataforma donde la escena se conecta.
           Encuentra tickets o revende los tuyos de forma segura y entre personas reales
         </motion.p>
 
         <motion.div
-          className="relative mx-auto max-w-[320px]"
+          className="flex items-center gap-3 mb-6"
           variants={fadeUp}
           transition={springs.smooth}
         >
-          <div className="bg-[#111] border border-[#222] flex items-center gap-2 px-4 h-[44px] rounded-none">
-            <Search className="w-4 h-4 text-[#555] shrink-0" />
-            <input
-              type="text"
-              placeholder="Buscar evento..."
-              className="bg-transparent border-none text-white text-sm outline-none w-full placeholder:text-[#555]"
-              onFocus={() => document.getElementById("browse-events")?.scrollIntoView({ behavior: "smooth" })}
-            />
-          </div>
+          <motion.button
+            onClick={() => document.getElementById("browse-events")?.scrollIntoView({ behavior: "smooth" })}
+            className="btn-tag bg-primary text-white px-5 py-2.5 text-[13px] font-semibold cursor-pointer inline-flex items-center gap-2 font-[family-name:var(--font-chakra)]"
+            whileTap={{ scale: 0.97 }}
+          >
+            Únete a la escena <ArrowUpRight className="w-3.5 h-3.5" />
+          </motion.button>
+          <motion.button
+            onClick={() => document.dispatchEvent(new CustomEvent("open-auth-modal"))}
+            className="btn-tag bg-[#222] text-white px-5 py-2.5 text-[13px] font-semibold cursor-pointer inline-flex items-center gap-2 font-[family-name:var(--font-chakra)] border border-[#333]"
+            whileTap={{ scale: 0.97 }}
+          >
+            Log In
+          </motion.button>
+        </motion.div>
+
+        {/* Slideshow banner */}
+        <motion.div
+          className="w-full"
+          variants={{
+            hidden: { opacity: 0, y: 20, scale: 0.97 },
+            visible: { opacity: 1, y: 0, scale: 1 },
+          }}
+          transition={springs.gentle}
+        >
+          <SlideshowBanner />
         </motion.div>
       </motion.div>
 

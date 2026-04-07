@@ -177,6 +177,10 @@ const faqCategories = {
         a: "Busca el evento que te interesa, revisa los boletos disponibles con sus precios, y haz click en 'Comprar'. Completa el pago con tu tarjeta o método preferido y recibirás tu boleto digital al instante.",
       },
       {
+        q: "¿Cómo recibo mi boleto después de la compra?",
+        a: "Los boletos se transfieren electrónicamente. Recibirás tu boleto digital por correo electrónico con un enlace de descarga seguro. El boleto se enviará a las credenciales que proporcionaste al crear tu cuenta de UntzDrop.",
+      },
+      {
         q: "¿Los boletos son legítimos?",
         a: "Sí. Cada boleto pasa por un proceso de verificación antes de que se libere el pago al vendedor. Si un boleto resulta inválido, te devolvemos el 100% de tu dinero.",
       },
@@ -189,8 +193,36 @@ const faqCategories = {
         a: "Los precios que ves son los que fija cada vendedor. UntzDrop cobra una pequeña comisión de servicio que se muestra claramente antes de confirmar tu compra. Sin sorpresas.",
       },
       {
+        q: "Compré demasiados boletos y quiero devolverlos",
+        a: "Como UntzDrop es un marketplace donde los fans compran y venden boletos entre sí, no podemos aceptar devoluciones. Todas las ventas son finales. Sin embargo, puedes revender tus boletos extras publicándolos en la plataforma.",
+      },
+      {
+        q: "Mis boletos no funcionan en el evento",
+        a: "Si tus boletos no funcionan en el evento, contáctanos de inmediato por WhatsApp o correo. Nuestro equipo investigará el caso y, si se confirma que el boleto era inválido, te devolvemos el monto total.",
+      },
+      {
+        q: "¿Qué significa GA?",
+        a: "GA significa General Admission (admisión general). Estos boletos son para zonas sin asiento asignado, como pistas de baile, áreas cerca del escenario, o zonas abiertas en venues al aire libre.",
+      },
+      {
+        q: "Hice una oferta – ¿por qué me cobraron?",
+        a: "Al hacer una oferta, se realiza una autorización temporal en tu tarjeta para verificar que tienes fondos disponibles. No es un cargo — es una retención. Si cancelas tu oferta o no es aceptada, la retención se libera automáticamente.",
+      },
+      {
+        q: "El artista que quería ver no se presentó",
+        a: "UntzDrop es un marketplace donde los fans compran y venden boletos entre sí. Lamentablemente, no somos responsables por cambios en el lineup o artistas que no se presenten. Para estos casos, te recomendamos contactar al organizador del evento directamente.",
+      },
+      {
         q: "¿Qué pasa si el evento se cancela?",
         a: "Si el evento es cancelado oficialmente, te ayudamos a gestionar el reembolso con el vendedor. Nuestro equipo de soporte media en cualquier disputa.",
+      },
+      {
+        q: "Necesito cancelar mi compra",
+        a: "Todas las compras en UntzDrop son finales. Una vez completada la transacción, no es posible modificar ni cancelar la orden. Si tienes boletos que no vas a usar, puedes ponerlos a la venta en la plataforma.",
+      },
+      {
+        q: "¿Los detalles de mi boleto se ven diferentes?",
+        a: "Es normal que ciertos detalles del boleto (como el nombre del comprador original o códigos internos) sean diferentes. Esto no indica que tu boleto sea inválido. Lo importante es el código QR, que es lo que se escanea en la entrada del evento.",
       },
     ],
   },
@@ -200,7 +232,7 @@ const faqCategories = {
     faqs: [
       {
         q: "¿Cómo pongo un boleto a la venta?",
-        a: "Ve al evento, haz click en 'Vender', sube tu boleto (PDF o imagen), fija tu precio y publica. Tu listing aparecerá inmediatamente para todos los compradores.",
+        a: "Ve al evento, haz click en 'Vender', sube tu boleto (PDF o imagen del QR), fija tu precio y publica. Tu listing aparecerá inmediatamente para todos los compradores.",
       },
       {
         q: "¿Cuánto cobra UntzDrop de comisión?",
@@ -208,15 +240,63 @@ const faqCategories = {
       },
       {
         q: "¿Cuándo recibo mi pago?",
-        a: "El pago se procesa una vez que el comprador confirma la recepción del boleto. Los fondos se depositan en tu cuenta bancaria o método de pago configurado en 1-3 días hábiles.",
+        a: "El pago se procesa una vez que el boleto es transferido exitosamente al comprador. Los fondos se depositan en tu cuenta bancaria en 1-3 días hábiles después de solicitar el retiro.",
       },
       {
-        q: "¿Puedo cambiar el precio después de publicar?",
-        a: "Sí, puedes editar o eliminar tu listing en cualquier momento desde tu Dashboard, siempre y cuando no haya una compra en proceso.",
+        q: "¿Puedo cambiar el precio de mi listing?",
+        a: "Sí, puedes editar el precio de tu listing en cualquier momento desde tu Dashboard, siempre y cuando no haya una compra en proceso.",
       },
       {
         q: "¿Qué tipo de boletos puedo vender?",
-        a: "Puedes vender boletos digitales (PDFs, e-tickets) y boletos físicos para eventos de música electrónica. Cada boleto debe ser válido y no haber sido utilizado.",
+        a: "Puedes vender boletos digitales (PDFs, e-tickets, QRs) para eventos de música electrónica. Cada boleto debe ser válido y no haber sido utilizado ni publicado en otra plataforma.",
+      },
+      {
+        q: "¿Por qué UntzDrop me pide una foto de mi documento?",
+        a: "Para proteger a compradores y vendedores, podemos solicitar verificación de identidad (DNI, pasaporte o carné de extranjería). Esto ayuda a prevenir fraude y garantiza transacciones seguras.",
+      },
+      {
+        q: "¿Cómo entrego los boletos al comprador?",
+        a: "Cuando subes tu boleto al crear el listing, UntzDrop lo custodia de forma segura. Una vez que el comprador completa el pago, el boleto se libera automáticamente. No necesitas hacer nada adicional.",
+      },
+      {
+        q: "¿Cuáles son los plazos de entrega de boletos?",
+        a: "Los boletos digitales se entregan instantáneamente después del pago. Si subes tu boleto al momento de crear el listing, la entrega es automática. Es importante subir tu boleto lo antes posible para no retrasar la venta.",
+      },
+      {
+        q: "¿Cómo sé si mi boleto se vendió?",
+        a: "Recibirás una notificación y podrás ver el estado de la venta en tu Dashboard. El estado cambiará de 'Activo' a 'Vendido' cuando un comprador complete la transacción.",
+      },
+      {
+        q: "¿Cómo vinculo mi cuenta bancaria?",
+        a: "Ve a tu perfil y selecciona 'Conectar cuenta bancaria'. Sigue las instrucciones para agregar tus datos bancarios. Esto es necesario para recibir los pagos de tus ventas.",
+      },
+      {
+        q: "¿Puedo desvincular mi cuenta bancaria?",
+        a: "Sí, puedes desvincular tu cuenta bancaria desde la configuración de tu perfil en cualquier momento. Ten en cuenta que necesitarás una cuenta bancaria vinculada para recibir pagos de ventas futuras.",
+      },
+      {
+        q: "Vendí boletos y necesito cancelar la venta",
+        a: "Todas las ventas en UntzDrop son finales. Una vez que un comprador completa la compra, no es posible cancelar la venta. Cancelaciones pueden resultar en penalizaciones según nuestros Términos y Condiciones.",
+      },
+      {
+        q: "¿Cómo elimino un listing?",
+        a: "Ve a tu Dashboard, encuentra el listing activo y selecciona 'Eliminar'. Solo puedes eliminar listings que no tengan una compra en proceso.",
+      },
+      {
+        q: "No veo mi listing en el sitio",
+        a: "Si tu listing no aparece, verifica que lo hayas publicado correctamente desde tu Dashboard. Si el evento ya pasó (después de las 11:59 PM del día del evento), el listing ya no será visible. Contacta soporte si el problema persiste.",
+      },
+      {
+        q: "¿Cómo tomo una captura del QR de mi boleto?",
+        a: "Abre tu boleto en el celular, toma una captura de pantalla asegurándote de que el código QR se vea completo y nítido. Luego sube esa imagen al crear tu listing. UntzDrop verificará que el QR sea legible.",
+      },
+      {
+        q: "¿Cómo dejo una reseña?",
+        a: "Después de completar una transacción, podrás dejar una reseña sobre tu experiencia. Las reseñas ayudan a construir confianza en la comunidad y son visibles para otros usuarios.",
+      },
+      {
+        q: "¿Cómo solicito que agreguen un evento?",
+        a: "Si el evento que buscas no aparece en UntzDrop, puedes solicitar que lo agreguemos desde la sección 'Solicitar un Evento' en la página de ayuda o en el footer. Lo revisaremos y agregaremos lo antes posible.",
       },
     ],
   },
@@ -386,7 +466,7 @@ export default function HelpPage() {
           animate={categoriesInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
           transition={springs.smooth}
         >
-          {(["general", "comprar", "vender"] as CategoryKey[]).map((key, i) => (
+          {(["general", "comprar", "vender", "seguridad"] as CategoryKey[]).map((key, i) => (
             <span key={key} className="flex items-center gap-2 md:gap-3">
               {i > 0 && <span className="text-[#333] text-xs hidden md:inline">●</span>}
               <button

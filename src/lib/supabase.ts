@@ -31,6 +31,13 @@ export interface Artist {
   image_url: string | null;
 }
 
+/** Check if an event is still active (available until 11:59 PM on event day). */
+function isEventActive(dateStr: string): boolean {
+  const eventDate = new Date(dateStr);
+  const eventEndOfDay = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), 23, 59, 59);
+  return new Date() <= eventEndOfDay;
+}
+
 export async function getEvents(): Promise<Event[]> {
   const { data, error } = await supabase
     .from("events_with_pricing")
@@ -41,7 +48,7 @@ export async function getEvents(): Promise<Event[]> {
     console.error("Error fetching events:", error);
     return [];
   }
-  return data ?? [];
+  return (data ?? []).filter(e => isEventActive(e.date));
 }
 
 export async function getTrendingEvents(): Promise<Event[]> {
@@ -55,7 +62,7 @@ export async function getTrendingEvents(): Promise<Event[]> {
     console.error("Error fetching trending events:", error);
     return [];
   }
-  return data ?? [];
+  return (data ?? []).filter(e => isEventActive(e.date));
 }
 
 export function formatEventDate(dateStr: string): string {
@@ -109,6 +116,7 @@ export async function getEventById(id: number): Promise<Event | null> {
     console.error("Error fetching event:", error);
     return null;
   }
+  if (data && !isEventActive(data.date)) return null;
   return data;
 }
 

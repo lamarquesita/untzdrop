@@ -23,8 +23,10 @@ const linkColumns = [
   {
     title: "Legal",
     links: [
+      { label: "Acuerdo de Usuario", href: "/user-agreement" },
       { label: "Política de Privacidad", href: "/privacy" },
       { label: "Términos y Condiciones", href: "/terms" },
+      { label: "Política de Cookies", href: "/cookies" },
     ],
   },
   {

@@ -10,7 +10,8 @@ import AudioWave from "./effects/AudioWave";
 const slides = [
   {
     id: "instagram",
-    gradient: "from-[#D946EF] via-[#EA580B] to-[#F59E0B]",
+    gradient: "",
+    bgImage: "/instagram-banner.jpg",
     icon: (
       <svg width="36" height="36" viewBox="0 0 24 24" fill="white">
         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
@@ -60,7 +61,7 @@ function SlideshowBanner() {
   const startAutoplay = () => {
     intervalRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
-    }, 4000);
+    }, 8000);
   };
 
   const stopAutoplay = () => {
@@ -82,46 +83,54 @@ function SlideshowBanner() {
 
   return (
     <motion.div
-      className="w-full rounded-2xl overflow-hidden relative h-[180px] md:h-[218px]"
+      className="w-full rounded-2xl overflow-hidden relative aspect-[2658/984]"
       onMouseEnter={stopAutoplay}
       onMouseLeave={startAutoplay}
     >
       <AnimatePresence mode="wait">
         <motion.div
           key={slide.id}
-          className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} flex flex-col justify-between p-4 md:p-5`}
+          className={`absolute inset-0 ${slide.bgImage ? "" : `bg-gradient-to-br ${slide.gradient}`} flex flex-col justify-between p-4 md:p-5`}
+          style={slide.bgImage ? { backgroundImage: `url(${slide.bgImage})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
         >
-          {/* Top — icon + handle */}
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
-                {slide.icon}
+          {slide.bgImage && (
+            <a href={slide.href} target="_blank" rel="noopener noreferrer" className="absolute inset-0 z-10" />
+          )}
+          {!slide.bgImage && (
+            <>
+              {/* Top — icon + handle */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
+                    {slide.icon}
+                  </div>
+                  <div>
+                    <div className="text-white text-[12px] md:text-[13px] font-bold">{slide.handle}</div>
+                    <div className="text-white/60 text-[9px] md:text-[10px]">{slide.description}</div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="text-white text-[12px] md:text-[13px] font-bold">{slide.handle}</div>
-                <div className="text-white/60 text-[9px] md:text-[10px]">{slide.description}</div>
-              </div>
-            </div>
-          </div>
 
-          {/* Bottom — title + CTA */}
-          <div>
-            <div className="text-white text-[18px] md:text-[22px] font-extrabold leading-tight mb-2 md:mb-3 font-[family-name:var(--font-chakra)]">
-              {slide.title}
-            </div>
-            <a
-              href={slide.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-tag inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 text-[12px] font-bold hover:bg-white/30 transition-colors"
-            >
-              {slide.cta} <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
+              {/* Bottom — title + CTA */}
+              <div>
+                <div className="text-white text-[18px] md:text-[22px] font-extrabold leading-tight mb-2 md:mb-3 font-[family-name:var(--font-chakra)]">
+                  {slide.title}
+                </div>
+                <a
+                  href={slide.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-tag inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 text-[12px] font-bold hover:bg-white/30 transition-colors"
+                >
+                  {slide.cta} <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </>
+          )}
         </motion.div>
       </AnimatePresence>
 
@@ -161,7 +170,7 @@ export default function Hero() {
           transition={springs.gentle}
         >
           Compra o Vende<br />
-          Boletos de <span className="text-primary">Raves</span> &amp; EDM
+          Boletos de Raves &amp; EDM
         </motion.h1>
 
         <motion.p
@@ -189,51 +198,57 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* ═══ DESKTOP: Original side-by-side layout ═══ */}
+      {/* ═══ DESKTOP: Centered layout ═══ */}
       <motion.div
-        className="relative z-10 hidden md:flex items-start gap-9"
+        className="relative z-10 hidden md:flex flex-col items-center text-center"
         variants={staggerContainer(0.12, 0.1)}
         initial="hidden"
         animate="visible"
       >
-        {/* Left — Copy */}
-        <motion.div
-          className="w-[418px] shrink-0 pt-2"
-          variants={staggerContainer(0.1)}
+        <motion.h1
+          className="text-[64px] font-medium leading-[1.0] tracking-[-2.5px] mb-5 font-[family-name:var(--font-chakra)]"
+          variants={fadeUpBlur}
+          transition={springs.gentle}
         >
-          <motion.h1
-            className="text-[34px] lg:text-[41px] font-medium leading-[1.0] tracking-[-1.9px] mb-6 font-[family-name:var(--font-chakra)]"
-            variants={fadeUpBlur}
-            transition={springs.gentle}
-          >
-            Compra o Vende<br />
-            Boletos de <span className="text-primary">Raves</span> &amp; EDM
-          </motion.h1>
+          Compra o Vende<br />
+          Boletos de Raves &amp; EDM
+        </motion.h1>
 
-          <motion.p
-            className="text-muted text-[14px] leading-[20px] mb-6 max-w-[340px] font-[family-name:var(--font-chakra)]"
-            variants={fadeUp}
-            transition={springs.smooth}
-          >
-            La plataforma donde la escena se conecta.<br />
-            Encuentra tickets o revende los tuyos de forma segura, rápida y entre personas reales
-          </motion.p>
+        <motion.p
+          className="text-muted text-[17px] leading-[24px] mb-7 max-w-[480px] font-[family-name:var(--font-chakra)]"
+          variants={fadeUp}
+          transition={springs.smooth}
+        >
+          La plataforma donde la escena se conecta.
+          Encuentra tickets o revende los tuyos de forma segura, rápida y entre personas reales
+        </motion.p>
 
+        <motion.div
+          className="flex items-center gap-3 mb-8"
+          variants={fadeUp}
+          transition={springs.smooth}
+        >
           <motion.button
             onClick={() => document.getElementById("browse-events")?.scrollIntoView({ behavior: "smooth" })}
             className="btn-tag bg-primary text-white px-6 py-3 text-[15px] font-semibold cursor-pointer inline-flex items-center gap-2 font-[family-name:var(--font-chakra)]"
-            variants={fadeUp}
-            transition={springs.smooth}
             whileHover={{ scale: 1.04, boxShadow: "0 0 24px rgba(236,130,23,0.3)" }}
             whileTap={{ scale: 0.97 }}
           >
             Únete a la escena <ArrowUpRight className="w-4 h-4" />
           </motion.button>
+          <motion.button
+            onClick={() => document.dispatchEvent(new CustomEvent("open-auth-modal"))}
+            className="btn-tag bg-[#222] hover:bg-[#2a2a2a] text-white px-6 py-3 text-[15px] font-semibold cursor-pointer inline-flex items-center gap-2 font-[family-name:var(--font-chakra)] border border-[#333]"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            Log In
+          </motion.button>
         </motion.div>
 
-        {/* Right — Slideshow banner */}
+        {/* Slideshow banner below */}
         <motion.div
-          className="flex-1"
+          className="w-full max-w-[750px]"
           variants={{
             hidden: { opacity: 0, y: 20, scale: 0.97 },
             visible: { opacity: 1, y: 0, scale: 1 },

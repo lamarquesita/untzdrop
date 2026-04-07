@@ -10,13 +10,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch orders with event + seller info via joins
+    // Fetch orders with event info via joins
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
       .select(`
         *,
-        events ( id, name, date, venue, image_url ),
-        seller:profiles!orders_seller_id_fkey ( full_name )
+        events ( id, name, date, venue, image_url )
       `)
       .eq('buyer_id', user.id)
       .order('created_at', { ascending: false });

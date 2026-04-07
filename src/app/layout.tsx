@@ -3,6 +3,7 @@ import { Inter, Chakra_Petch } from "next/font/google";
 import "./globals.css";
 import StripeProvider from "@/components/StripeProvider";
 import GlobalEffects from "@/components/effects/GlobalEffects";
+import CookieBanner from "@/components/CookieBanner";
 import { SavedEventsProvider } from "@/hooks/useSavedEvents";
 
 const inter = Inter({
@@ -36,6 +37,7 @@ export default function RootLayout({
             <div className="max-w-[1440px] mx-auto">
               {children}
             </div>
+            <CookieBanner />
           </SavedEventsProvider>
         </StripeProvider>
       </body>

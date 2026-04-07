@@ -1,126 +1,165 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import LegalLayout from "@/components/LegalLayout";
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <Navbar />
-      <div className="max-w-3xl mx-auto px-6 py-16">
-        <h1 className="text-3xl font-extrabold mb-2 font-[family-name:var(--font-chakra)]">
-          Términos Suplementarios para Vendedores
-        </h1>
-        <p className="text-sm text-[#888] mb-10">UntzDrop S.A.C. — Vigente: 20 de marzo de 2026</p>
+    <LegalLayout
+      title="Términos Suplementarios para Vendedores"
+      subtitle="Términos adicionales que aplican a todos los usuarios de la Plataforma de UntzDrop que actúen como Vendedores de boletos."
+      date="20 de marzo de 2026"
+    >
 
-        <div className="prose-dark space-y-6 text-sm text-[#ccc] leading-relaxed">
           <p>
-            Estos Términos Suplementarios para Vendedores (&quot;Términos para Vendedores&quot;) complementan el Acuerdo de Usuario de UntzDrop y establecen las condiciones adicionales aplicables a los usuarios que publican entradas para venta en la Plataforma (&quot;Vendedores&quot;). Al publicar una entrada para venta, usted acepta estar sujeto tanto al Acuerdo de Usuario como a estos Términos para Vendedores.
+            Estos Términos Suplementarios (&quot;Términos&quot;) se aplican a todos los usuarios de la Plataforma de UntzDrop (incluyendo cualquier Servicio) que actúen como Vendedores de boletos. Según se utiliza en el presente, un usuario que desee vender boletos puede publicar los boletos en UntzDrop como &quot;Vendedor&quot;.
           </p>
-          <p>En caso de conflicto entre estos Términos para Vendedores y el Acuerdo de Usuario, prevalecerán estos Términos para Vendedores en lo que respecta a las actividades de venta.</p>
+          <p>
+            Estos Términos están sujetos al <a href="/user-agreement">Acuerdo de Usuario</a> de UntzDrop. Cualquier término en mayúsculas utilizado en el presente que no esté definido tiene el significado dado a dicho término en el Acuerdo de Usuario. La violación de estos Términos Suplementarios puede llevar a la suspensión o terminación de la Cuenta.
+          </p>
+          <p>
+            UntzDrop puede modificar cualquiera de estos Términos en cualquier momento, con o sin previo aviso, sujeto a la ley aplicable.
+          </p>
+          <p>
+            En caso de un cambio en estos Términos, publicaremos una versión revisada de estos Términos aquí, que reemplazará automáticamente cualquier término anterior publicado aquí. Su uso continuado de untzdrop.com y los Servicios de UntzDrop, según se definen en el Acuerdo de Usuario, después de la publicación de cualquier Término revisado constituirá su aceptación de los Términos revisados. Si no está de acuerdo con el Acuerdo de Usuario o los Términos, no continúe usando untzdrop.com ni los servicios de UntzDrop.
+          </p>
 
-          <h2 className="text-lg font-bold text-white pt-4">1. Publicar Entradas para Venta</h2>
-          <p>Al publicar entradas para venta en la Plataforma, usted declara y garantiza que:</p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Es el titular legítimo de las entradas o está debidamente autorizado para venderlas.</li>
-            <li>Las entradas son auténticas, válidas y no han sido duplicadas, falsificadas ni alteradas.</li>
-            <li>Las entradas no han sido reportadas como robadas ni están sujetas a restricciones de transferencia que impidan su venta.</li>
-            <li>Toda la información proporcionada sobre las entradas es precisa y completa.</li>
-            <li>Las entradas cumplen con todas las leyes y regulaciones aplicables, incluyendo las leyes peruanas sobre reventa de entradas.</li>
-            <li>No publicará la misma entrada en múltiples plataformas simultáneamente sin actualizar inmediatamente la disponibilidad.</li>
+          {/* ── 1 ── */}
+          <h2>1. Publicar Boletos para Venta</h2>
+          <p>
+            Como parte del proceso de publicación, el Vendedor debe proporcionar información precisa como la descripción del evento, fecha, sección, fila y asiento. Los Vendedores también deben asegurarse de que dichas publicaciones permanezcan precisas. Un Vendedor que publica un boleto para venta en la Plataforma elige vender ese boleto a un precio fijo. El precio fijo puede aumentarse o reducirse siempre que un Comprador no haya comprado los boletos.
+          </p>
+          <p>
+            Los Vendedores están obligados a divulgar si los boletos indican que es una vista limitada u obstruida, solo para silla de ruedas, accesible para silla de ruedas, libre de alcohol, solo mayores de 21 años, o detrás o al costado del escenario, y cualquier otra información que pueda ser relevante para un Comprador. Cierta información es legalmente requerida para ciertos venues, como el valor nominal del boleto. El Vendedor debe proporcionar dicha información legalmente requerida. Una vez enviados, los boletos estarán disponibles para compra inmediata por un Comprador.
+          </p>
+
+          <h3>1.1 Restricciones de Publicación</h3>
+          <p>Los Vendedores tienen expresamente prohibido publicar para venta:</p>
+          <ul>
+            <li>Boletos que no poseen o no les han sido asignados (&quot;Boletos Especulativos&quot;);</li>
+            <li>Boletos robados;</li>
+            <li>Boletos de tipo &quot;recojo en puerta&quot; o &quot;will-call&quot; únicamente;</li>
+            <li>Boletos que no otorguen acceso al evento a menos que se indique claramente;</li>
+            <li>Asientos no consecutivos;</li>
+            <li>Boletos inválidos o cuya venta esté legalmente prohibida;</li>
+            <li>Boletos obtenidos mediante el uso de bots, software automatizado, scripts u otros medios tecnológicos que eludan los límites de compra, controles de acceso, colas virtuales, CAPTCHAs u otras medidas de seguridad establecidas por los emisores de boletos, los organizadores de eventos o las plataformas de venta primaria. La obtención de boletos por estos medios podrá constituir un delito informático de conformidad con la Ley N° 30096 (Ley de Delitos Informáticos del Perú).</li>
           </ul>
-          <p><strong>Restricciones adicionales:</strong></p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>No podrá publicar entradas para eventos que hayan ocurrido o cuya fecha de inicio haya pasado.</li>
-            <li>No podrá establecer precios que se consideren abusivos o que violen las leyes de protección al consumidor.</li>
-            <li>No podrá utilizar prácticas engañosas para inflar artificialmente los precios.</li>
+          <p>No se permite incluir información personal en las notas del vendedor.</p>
+
+          {/* ── 2 ── */}
+          <h2>2. Completar Tu Venta</h2>
+          <p>
+            Completar una venta significa seguir todos los pasos para enviar los boletos comprados, a tiempo y según lo prometido en su publicación. El cumplimiento de órdenes confirmadas, incluyendo la entrega de boletos, es responsabilidad del Vendedor. Si sus boletos requieren entrega manual, aceptación o reclamación por parte del Comprador a través de una plataforma de boletos de terceros, usted asume todo el riesgo de no aceptación o transferencia fallida, y dicho fallo será tratado como no entrega bajo estos Términos.
+          </p>
+
+          <h3>2.1 Plazos de Entrega</h3>
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Tiempo antes del evento</th>
+                  <th>Plazo de entrega</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Más de 24 horas</td>
+                  <td>Dentro de 24 horas (a menos que se indique lo contrario, como un retraso en la transferencia de terceros)</td>
+                </tr>
+                <tr>
+                  <td>12 – 24 horas</td>
+                  <td>Dentro de 12 horas</td>
+                </tr>
+                <tr>
+                  <td>6 – 12 horas</td>
+                  <td>Dentro de 2 horas</td>
+                </tr>
+                <tr>
+                  <td>0 – 6 horas</td>
+                  <td>Dentro de 1 hora</td>
+                </tr>
+                <tr>
+                  <td>Después del inicio del evento</td>
+                  <td>Dentro de 15 minutos</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>2.2 Órdenes Abandonadas</h3>
+          <p>
+            Si sus boletos se han vendido pero no puede cumplir con la orden o hubo un problema con el cumplimiento, se considera una &quot;Orden Abandonada&quot;. UntzDrop se reserva el derecho de designar, a su entera discreción, cualquier acción del Vendedor en violación de estos Términos o del Acuerdo de Usuario como una Orden Abandonada, incluyendo pero no limitado a las siguientes situaciones:
+          </p>
+          <ul>
+            <li>El Vendedor no puede cumplir con la orden;</li>
+            <li>La entrega de boletos falla;</li>
+            <li>UntzDrop rechaza cualquier cambio solicitado a la publicación original y cancela la orden;</li>
+            <li>Los boletos entregados son inválidos, fraudulentos, falsificados, incorrectos o tergiversados.</li>
           </ul>
-          <p>UntzDrop se reserva el derecho de eliminar publicaciones que considere inadecuadas, fraudulentas o que violen estos Términos.</p>
+          <p>
+            En caso de que ocurra una Orden Abandonada, UntzDrop puede, a su entera discreción, cobrar al Vendedor una cantidad de <strong>hasta o superior al 200% del precio de los boletos vendidos</strong> para compensarnos por los gastos en los que incurrimos para cumplir con nuestras obligaciones con el Comprador. UntzDrop se reserva el derecho de suspender o terminar su Cuenta de UntzDrop en caso de una Orden Abandonada. Si un Vendedor cree que un cargo por no entrega ha sido aplicado por error, puede contactar al equipo de servicio al cliente de UntzDrop dentro de las 48 horas posteriores a la notificación del cargo con la evidencia correspondiente.
+          </p>
 
-          <h2 className="text-lg font-bold text-white pt-4">2. Completar Tu Venta</h2>
-          <p>Una vez que un comprador adquiere sus entradas, usted está obligado contractualmente a completar la venta.</p>
+          {/* ── 3 ── */}
+          <h2>3. Pagos</h2>
+          <p>
+            Antes o después de su primera venta en UntzDrop, puede configurar su cuenta con nuestro proveedor de pagos de terceros. Para configurar una cuenta y así recibir pagos por sus ventas en UntzDrop, se le requiere aceptar y adherirse a cualquier término y condición adicional asociado con el proveedor de pagos de terceros.
+          </p>
+          <p>
+            Después de la recepción del dinero del Comprador por parte de UntzDrop, UntzDrop, a través de su proveedor de pagos de terceros, remitirá al Vendedor el precio del/los boleto(s), menos cualquier tarifa, cargo, compensación y otros montos adeudados a UntzDrop de conformidad con los términos del presente. Los pagos se procesan típicamente dentro de uno (1) a dos (2) días hábiles después de la confirmación de la entrega válida del boleto y la recepción por parte de UntzDrop de una solicitud de retiro. Sin embargo, el tiempo real de pago puede variar según el método de pago elegido por el Vendedor, la fecha del evento y los requisitos específicos de la plataforma de boletos. En algunos casos, los pagos pueden ocurrir uno (1) a dos (2) días hábiles después del evento por razones de seguridad. Se pueden imponer tarifas adicionales de retiro a Vendedores no basados en Perú, las cuales serán deducidas del monto total de remesa a la entera discreción de UntzDrop.
+          </p>
+          <p>
+            Usted acepta y reconoce que el Comprador aplicable (y no UntzDrop) es el único responsable del pago por los boletos que usted proporciona. Usted además acepta y reconoce que UntzDrop no tiene ninguna responsabilidad ni obligación de realizar o remitir ningún pago a usted (como Vendedor) por cualquier boleto proporcionado a menos que y en la medida en que UntzDrop haya recibido efectivamente el pago de las Tarifas del Comprador aplicable por dichos boletos.
+          </p>
 
-          <h3 className="text-base font-semibold text-white">2.1 Entrega de Entradas</h3>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Deberá entregar las entradas al comprador dentro del plazo establecido por la Plataforma.</li>
-            <li>Las entradas electrónicas deberán transferirse dentro de las 24 horas siguientes a la confirmación de la venta.</li>
-            <li>Las entradas físicas deberán enviarse dentro del plazo indicado, utilizando un método de envío con seguimiento.</li>
-            <li>Deberá confirmar la entrega a través de la Plataforma.</li>
-          </ul>
+          {/* ── 4 ── */}
+          <h2>4. Comunicación con Compradores</h2>
+          <p>
+            UntzDrop puede proporcionar a los Vendedores cierta información relacionada con los Compradores, como su información de contacto, para que los Vendedores puedan enviarles los boletos. Los Vendedores tienen prohibido usar dicha información para cualquier propósito que no sea el cumplimiento de sus obligaciones de proporcionar los boletos comprados a los Compradores. Los Vendedores no incluirán, en ninguna comunicación a ningún Comprador, ningún contenido o información que no sean los boletos comprados o para coordinar la transferencia de los mismos. Otras solicitudes, información de contacto, o marketing o publicidad están prohibidos. UntzDrop no es responsable de ningún uso de dicha información proporcionada por el Vendedor.
+          </p>
 
-          <h3 className="text-base font-semibold text-white">2.2 Órdenes Abandonadas</h3>
-          <p>Si no completa la entrega de las entradas dentro del plazo establecido (&quot;Orden Abandonada&quot;), UntzDrop podrá:</p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Cancelar la orden y reembolsar al comprador.</li>
-            <li>Cobrarle una penalización por orden abandonada.</li>
-            <li>Suspender o cancelar su cuenta de vendedor.</li>
-            <li>Retener fondos de ventas futuras como garantía.</li>
-            <li>Prohibirle publicar nuevas entradas por un período determinado.</li>
-          </ul>
+          {/* ── 5 ── */}
+          <h2>5. Políticas Generales del Vendedor</h2>
+          <p>
+            Como Vendedor, usted otorga a UntzDrop permiso para debitar su saldo o cargar la tarjeta de crédito o débito asociada con su cuenta registrada por todos y cada uno de los cargos, tarifas, responsabilidades, daños y gastos incurridos por UntzDrop si en cualquier momento el Vendedor no entrega los boletos que ha publicado o entrega boletos inválidos, fraudulentos, falsificados, incorrectos o tergiversados.
+          </p>
+          <p>
+            Puede haber ocasiones en que UntzDrop requiera que los boletos publicados sean entregados a UntzDrop antes de la venta. Al venderse los boletos, UntzDrop los entregará al Comprador en nombre del Vendedor. En caso de que los boletos no se vendan, o la publicación sea eliminada, los boletos serán devueltos y aceptados por el Vendedor.
+          </p>
+          <p>
+            UntzDrop no garantiza que los boletos que publique se vendan, que usted ganará una cantidad particular de dinero comercializando y vendiendo boletos en UntzDrop, o que algún Comprador completará alguna transacción con usted o podrá pagar por los boletos. Además, UntzDrop no garantiza que los boletos serán publicados de alguna manera particular o con alguna preferencia o que aparecerán dentro de algún período de tiempo particular. UntzDrop se reserva el derecho de restringir la publicación de boletos para venta y de eliminar publicaciones de boletos no vendidos para cualquier evento.
+          </p>
+          <p>
+            Si tiene una disputa con uno o más usuarios (incluyendo Compradores u otros Vendedores), usted libera a UntzDrop y todas las compañías afiliadas, funcionarios, directores, agentes, matrices, subsidiarias, representantes legales y empleados de cualquier reclamación, demanda y daños (reales y consecuentes) de todo tipo y naturaleza, conocidos y desconocidos, sospechados y no sospechados, divulgados y no divulgados, que surjan de o estén de alguna manera conectados con dicha disputa.
+          </p>
+          <p>
+            El Vendedor acepta indemnizar y mantener indemne a UntzDrop de cualquier pérdida, costo, responsabilidad y gasto (incluyendo honorarios razonables de abogados) relacionados con o que surjan del incumplimiento o presunto incumplimiento del Vendedor de estos Términos Suplementarios.
+          </p>
 
-          <h3 className="text-base font-semibold text-white">2.3 Cronogramas de Entrega</h3>
-          <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Entradas electrónicas/digitales:</strong> dentro de las 24 horas posteriores a la venta.</li>
-            <li><strong>Entradas móviles:</strong> dentro de las 48 horas posteriores a la venta o cuando la transferencia esté disponible.</li>
-            <li><strong>Entradas físicas:</strong> con suficiente anticipación para que el comprador las reciba antes del evento.</li>
-            <li><strong>Eventos próximos (dentro de 5 días):</strong> entrega inmediata o dentro de las 6 horas.</li>
-          </ul>
+          {/* ── 6 ── */}
+          <h2>6. Cancelación y Postergación de Eventos</h2>
+          <p>
+            UntzDrop notificará al Vendedor de cualquier evento cancelado. Si necesita que se le devuelvan sus boletos para obtener un reembolso del precio de compra original, debe contactarnos en <a href="mailto:ayuda@untzdrop.com">ayuda@untzdrop.com</a>.
+          </p>
+          <p>
+            Si un evento es postergado, los Vendedores tienen prohibido revender, invalidar o cambiar boletos para eventos postergados.
+          </p>
 
-          <h2 className="text-lg font-bold text-white pt-4">3. Pagos</h2>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Los pagos se procesarán después de que el comprador confirme la recepción de las entradas o después de la realización del evento.</li>
-            <li>UntzDrop deducirá las comisiones y tarifas de servicio aplicables del monto de la venta.</li>
-            <li>Los pagos se realizarán mediante transferencia bancaria o el método de pago registrado en su cuenta.</li>
-            <li>Los tiempos de procesamiento pueden variar entre 5 y 15 días hábiles.</li>
-            <li>UntzDrop se reserva el derecho de retener pagos en caso de disputas o sospecha de fraude.</li>
-            <li>Todos los montos se expresan en soles peruanos (PEN).</li>
-            <li>En caso de contracargo, UntzDrop podrá deducir el monto de pagos futuros.</li>
-          </ul>
+          {/* ── 7 ── */}
+          <h2>7. Impuestos</h2>
+          <p>
+            UntzDrop no es responsable de ninguna manera por la exactitud o idoneidad de cualquier pago de cualquier impuesto aplicable en su nombre, excepto según lo requiera la ley. Como Vendedor, usted es responsable de recaudar y remitir todos los impuestos internacionales, federales, estatales o municipales aplicables en conexión con las ventas de boletos, excepto donde la ley nos requiera calcular, recaudar y remitir el impuesto a las ventas sobre dichas ventas.
+          </p>
+          <p>
+            Emitimos formularios tributarios al concluir el año calendario a cualquier Vendedor que cumpla con los umbrales establecidos por SUNAT para documentar dichas ventas según los requisitos tributarios. Usted acepta proporcionar a UntzDrop su número de RUC u otro número de identificación tributaria, si es necesario, para que UntzDrop proporcione información a las autoridades tributarias relevantes relacionada con los pagos que recibe de nosotros.
+          </p>
 
-          <h2 className="text-lg font-bold text-white pt-4">4. Comunicación con Compradores</h2>
-          <p>Toda comunicación entre vendedores y compradores debe realizarse exclusivamente a través de la Plataforma. Queda prohibido:</p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Solicitar o proporcionar información de contacto personal fuera de la Plataforma.</li>
-            <li>Intentar completar transacciones fuera de la Plataforma para eludir las tarifas de servicio.</li>
-            <li>Enviar comunicaciones comerciales no solicitadas a compradores.</li>
-            <li>Utilizar lenguaje abusivo, amenazante o inapropiado.</li>
-            <li>Compartir información personal de compradores con terceros.</li>
-          </ul>
-
-          <h2 className="text-lg font-bold text-white pt-4">5. Políticas Generales del Vendedor</h2>
-          <p>Como vendedor, usted se compromete a:</p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Mantener actualizada la información de sus publicaciones.</li>
-            <li>Responder oportunamente a las consultas de los compradores y de UntzDrop.</li>
-            <li>Cumplir con todas las leyes y regulaciones aplicables.</li>
-            <li>Mantener un nivel de servicio satisfactorio.</li>
-            <li>No participar en prácticas que manipulen artificialmente las calificaciones.</li>
-            <li>Cumplir con las políticas de reembolso y devolución de UntzDrop.</li>
-          </ul>
-
-          <h2 className="text-lg font-bold text-white pt-4">6. Cancelación de Eventos</h2>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Si el evento es cancelado definitivamente, la venta se cancelará y el comprador recibirá un reembolso. No se le realizará el pago al vendedor.</li>
-            <li>Si el evento es aplazado o reprogramado, la venta permanecerá vigente salvo que el comprador solicite un reembolso.</li>
-            <li>El vendedor no recibirá compensación por pérdidas derivadas de la cancelación de eventos.</li>
-            <li>Si ya recibió el pago por una venta que posteriormente se cancela, deberá reembolsar el monto correspondiente a UntzDrop.</li>
-          </ul>
-
-          <h2 className="text-lg font-bold text-white pt-4">7. Impuestos</h2>
-          <p>Como vendedor, usted es responsable de:</p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Determinar y cumplir con todas las obligaciones tributarias aplicables, incluyendo el IGV y el Impuesto a la Renta.</li>
-            <li>Emitir los comprobantes de pago correspondientes cuando así lo requiera la legislación peruana.</li>
-            <li>Declarar los ingresos obtenidos por la venta de entradas ante SUNAT.</li>
-            <li>Asumir cualquier responsabilidad tributaria derivada de sus actividades de venta en la Plataforma.</li>
-          </ul>
-          <p>UntzDrop no proporciona asesoría tributaria y recomienda consultar con un profesional calificado.</p>
-
-          <h2 className="text-lg font-bold text-white pt-4">Contacto</h2>
-          <p>UntzDrop S.A.C.<br />Correo electrónico: <a href="mailto:ayuda@untzdrop.com" className="text-primary">ayuda@untzdrop.com</a><br />Sitio web: untzdrop.com</p>
-        </div>
-      </div>
-      <Footer />
-    </main>
+          {/* ── Contacto ── */}
+          <h2>Contacto</h2>
+          <p>
+            UntzDrop S.A.C.<br />
+            Correo electrónico: <a href="mailto:ayuda@untzdrop.com">ayuda@untzdrop.com</a><br />
+            Sitio web: untzdrop.com
+          </p>
+    </LegalLayout>
   );
 }

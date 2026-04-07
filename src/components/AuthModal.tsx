@@ -32,7 +32,7 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
 
         {/* Bolt */}
         <div className="text-center mb-5 relative z-10">
-          <img src="/logo.svg" alt="UntzDrop" className="h-14 w-14" />
+          <img src="/logo.png" alt="UntzDrop" className="h-14 w-14" />
         </div>
 
         {step === "phone" && <PhoneStep phone={phone} setPhone={setPhone} onNext={() => setStep("verify")} />}

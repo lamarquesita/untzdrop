@@ -92,6 +92,13 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  // Listen for open-auth-modal events from other components
+  useEffect(() => {
+    const handler = () => setShowAuth(true);
+    document.addEventListener("open-auth-modal", handler);
+    return () => document.removeEventListener("open-auth-modal", handler);
+  }, []);
+
   const handleAuthClose = () => {
     setShowAuth(false);
   };
@@ -132,9 +139,9 @@ export default function Navbar() {
         <div className="flex items-center gap-3 md:gap-6 shrink-0">
           <Link href="/" className="flex items-center font-extrabold text-xl text-white" onClick={(e) => { e.preventDefault(); bassDrop.onClick(); }}>
             <motion.img
-              src="/logo.svg"
+              src="/logo.png"
               alt="UntzDrop"
-              className="h-12 w-12 md:h-16 md:w-16 -mr-3"
+              className="h-7 w-7 md:h-8 md:w-8 mr-1"
               animate={bassDrop.isDropping ? { rotate: [0, -10, 10, -5, 5, 0], scale: [1, 1.2, 0.9, 1.1, 1] } : {}}
               transition={{ duration: 0.6 }}
             />

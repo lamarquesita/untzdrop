@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X, CreditCard } from "lucide-react";
 import { Order } from "@/lib/mockDashboard";
+import DisputeModal from "./DisputeModal";
 
 function formatFullDate(iso: string) {
   const d = new Date(iso);
@@ -41,13 +42,15 @@ export default function OrderDetailPanel({
   order: Order;
   onClose: () => void;
 }) {
+  const [showDispute, setShowDispute] = useState(false);
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !showDispute) onClose();
     };
     document.addEventListener("keydown", handleEsc);
     return () => document.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
+  }, [onClose, showDispute]);
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -152,7 +155,10 @@ export default function OrderDetailPanel({
             <button className="btn-tag-sm bg-[#2A2A2A] hover:bg-[#2A2A2A] text-white text-xs font-semibold px-4 py-2 cursor-pointer border-none transition-colors">
               Ver Recibo
             </button>
-            <button className="text-red-400 text-xs font-semibold cursor-pointer bg-transparent border-none hover:text-red-300 transition-colors">
+            <button
+              onClick={() => setShowDispute(true)}
+              className="text-red-400 text-xs font-semibold cursor-pointer bg-transparent border-none hover:text-red-300 transition-colors"
+            >
               Reportar un Problema
             </button>
           </div>
@@ -161,6 +167,18 @@ export default function OrderDetailPanel({
 
       {/* Backdrop — right side */}
       <div className="flex-1 bg-black/60" onClick={onClose} />
+
+      {/* Dispute modal */}
+      {showDispute && (
+        <DisputeModal
+          order={order}
+          onClose={() => setShowDispute(false)}
+          onSubmit={(data) => {
+            console.log("Dispute submitted:", data);
+            // TODO: POST to /api/disputes
+          }}
+        />
+      )}
     </div>
   );
 }

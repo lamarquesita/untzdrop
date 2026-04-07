@@ -545,7 +545,7 @@ function DeliveryStep({
     <div>
       <div className="flex items-center justify-center gap-6 mb-6">
         <div className="flex items-center gap-2">
-          <img src="/logo.svg" alt="UntzDrop" className="h-6 w-6" />
+          <img src="/logo.png" alt="UntzDrop" className="h-6 w-6" />
           <span className="text-sm font-bold">UntzDrop</span>
         </div>
         <div className="text-[#333] text-lg">&times;</div>

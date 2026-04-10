@@ -346,8 +346,10 @@ function PhoneStep({ phone, setPhone, onNext }: { phone: string; setPhone: (v: s
     setLoading(true);
     setError("");
 
+    const fullPhone = `${country.dial}${digits}`;
+
     const { error: otpError } = await supabase.auth.signInWithOtp({
-      phone: `${country.dial}${digits}`,
+      phone: fullPhone,
     });
 
     setLoading(false);
@@ -357,6 +359,8 @@ function PhoneStep({ phone, setPhone, onNext }: { phone: string; setPhone: (v: s
       return;
     }
 
+    // Store the full E.164 phone so VerifyStep can use it directly
+    setPhone(fullPhone);
     onNext();
   };
 
@@ -498,7 +502,7 @@ function VerifyStep({ phone, onNext }: { phone: string; onNext: () => void }) {
     setError("");
 
     const { error: verifyError } = await supabase.auth.verifyOtp({
-      phone: formatPhoneE164(phone),
+      phone,
       token,
       type: "sms",
     });
@@ -518,7 +522,7 @@ function VerifyStep({ phone, onNext }: { phone: string; onNext: () => void }) {
     setError("");
 
     const { error: resendError } = await supabase.auth.signInWithOtp({
-      phone: formatPhoneE164(phone),
+      phone,
     });
 
     setResending(false);

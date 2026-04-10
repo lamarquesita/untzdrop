@@ -114,7 +114,7 @@ export default function NotifyModal({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  Te enviaremos un SMS cuando alguien publique entradas de <span className="text-white font-semibold">{ticketTypeLabel}</span> para <span className="text-white">{eventName}</span>.
+                  Te enviaremos un correo cuando alguien publique entradas de <span className="text-white font-semibold">{ticketTypeLabel}</span> para <span className="text-white">{eventName}</span>.
                 </motion.p>
                 <motion.p
                   className="text-xs text-[#666] mb-6"
@@ -150,7 +150,7 @@ export default function NotifyModal({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
                   >
-                    Aún no hay entradas a la venta para <span className="text-white font-semibold">{eventName}</span>. Te avisaremos por SMS cuando alguien publique.
+                    Aún no hay entradas a la venta para <span className="text-white font-semibold">{eventName}</span>. Te avisaremos por correo cuando alguien publique.
                   </motion.p>
 
                   <motion.div

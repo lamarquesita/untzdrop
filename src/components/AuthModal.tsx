@@ -82,18 +82,27 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-function formatPhoneE164(raw: string): string {
-  const digits = raw.replace(/\D/g, "");
-  return `+1${digits}`;
-}
+const countries = [
+  { code: "PE", name: "Perú", dial: "+51", flag: "🇵🇪", placeholder: "987 654 321", minDigits: 9 },
+  { code: "US", name: "Estados Unidos", dial: "+1", flag: "🇺🇸", placeholder: "(123) 456-7890", minDigits: 10 },
+  { code: "AR", name: "Argentina", dial: "+54", flag: "🇦🇷", placeholder: "11 1234-5678", minDigits: 10 },
+  { code: "CL", name: "Chile", dial: "+56", flag: "🇨🇱", placeholder: "9 1234 5678", minDigits: 9 },
+  { code: "CO", name: "Colombia", dial: "+57", flag: "🇨🇴", placeholder: "300 123 4567", minDigits: 10 },
+  { code: "MX", name: "México", dial: "+52", flag: "🇲🇽", placeholder: "55 1234 5678", minDigits: 10 },
+  { code: "EC", name: "Ecuador", dial: "+593", flag: "🇪🇨", placeholder: "99 123 4567", minDigits: 9 },
+  { code: "BO", name: "Bolivia", dial: "+591", flag: "🇧🇴", placeholder: "7123 4567", minDigits: 8 },
+  { code: "ES", name: "España", dial: "+34", flag: "🇪🇸", placeholder: "612 34 56 78", minDigits: 9 },
+];
 
 function PhoneStep({ phone, setPhone, onNext }: { phone: string; setPhone: (v: string) => void; onNext: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [country, setCountry] = useState(countries[0]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleSubmit = async () => {
     const digits = phone.replace(/\D/g, "");
-    if (digits.length < 10) {
+    if (digits.length < country.minDigits) {
       setError("Ingresa un número de teléfono válido");
       return;
     }
@@ -102,7 +111,7 @@ function PhoneStep({ phone, setPhone, onNext }: { phone: string; setPhone: (v: s
     setError("");
 
     const { error: otpError } = await supabase.auth.signInWithOtp({
-      phone: formatPhoneE164(phone),
+      phone: `${country.dial}${digits}`,
     });
 
     setLoading(false);
@@ -125,18 +134,40 @@ function PhoneStep({ phone, setPhone, onNext }: { phone: string; setPhone: (v: s
       </p>
 
       <label className="block text-sm font-semibold mb-2.5">Número de Teléfono</label>
-      <div className="flex items-center bg-[#111111] border border-[#333] rounded-xl px-4 mb-4">
-        <div className="flex items-center gap-1.5 text-sm text-white pr-3 py-3.5 border-r border-[#333] shrink-0">
-          <span className="text-lg">&#127482;&#127480;</span>
-          +1 <span className="text-[10px] text-muted">&#9660;</span>
+      <div className="relative mb-4">
+        <div className="flex items-center bg-[#111111] border border-[#333] rounded-xl px-4">
+          <button
+            type="button"
+            onClick={() => setShowDropdown((v) => !v)}
+            className="flex items-center gap-1.5 text-sm text-white pr-3 py-3.5 border-r border-[#333] shrink-0 bg-transparent border-y-0 border-l-0 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <span className="text-lg">{country.flag}</span>
+            {country.dial} <span className="text-[10px] text-muted">&#9660;</span>
+          </button>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder={country.placeholder}
+            className="flex-1 bg-transparent border-none text-muted text-sm py-3.5 px-3 outline-none font-[family-name:var(--font-chakra)] placeholder:text-muted-dark"
+          />
         </div>
-        <input
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="(123) 456-7890"
-          className="flex-1 bg-transparent border-none text-muted text-sm py-3.5 px-3 outline-none font-[family-name:var(--font-chakra)] placeholder:text-muted-dark"
-        />
+        {showDropdown && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-[#111111] border border-[#333] rounded-xl max-h-[260px] overflow-y-auto z-20 shadow-2xl">
+            {countries.map((c) => (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => { setCountry(c); setShowDropdown(false); setPhone(""); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-[#1a1a1a] cursor-pointer bg-transparent border-none text-left transition-colors"
+              >
+                <span className="text-lg">{c.flag}</span>
+                <span className="flex-1">{c.name}</span>
+                <span className="text-muted text-xs">{c.dial}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {error && (

@@ -121,7 +121,7 @@ export default function PriceAlertModal({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  Te notificaremos por mensaje de texto cuando el precio de <span className="text-white">{eventName}</span> baje de <span className="text-primary font-semibold">S/{Number(price).toFixed(2)}</span> para entradas de <span className="text-white font-semibold">{ticketTypeLabel}</span>.
+                  Te notificaremos por correo electrónico cuando el precio de <span className="text-white">{eventName}</span> baje de <span className="text-primary font-semibold">S/{Number(price).toFixed(2)}</span> para entradas de <span className="text-white font-semibold">{ticketTypeLabel}</span>.
                 </motion.p>
                 <motion.p
                   className="text-xs text-[#666] mb-6"
@@ -129,7 +129,7 @@ export default function PriceAlertModal({
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  Recibirás un SMS cuando encontremos una entrada que cumpla con tu alerta.
+                  Recibirás un correo cuando encontremos una entrada que cumpla con tu alerta.
                 </motion.p>
                 <motion.button
                   onClick={onClose}
@@ -158,7 +158,7 @@ export default function PriceAlertModal({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.15 }}
                   >
-                    Recibe un SMS cuando el precio de <span className="text-white font-semibold">{eventName}</span> baje del monto que elijas.
+                    Recibe un correo cuando el precio de <span className="text-white font-semibold">{eventName}</span> baje del monto que elijas.
                   </motion.p>
 
                   {/* Price input */}

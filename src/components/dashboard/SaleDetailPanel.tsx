@@ -136,7 +136,7 @@ export default function SaleDetailPanel({
             <h3 className="text-sm font-bold mb-3 text-[#aaa]">Entrega</h3>
             {sale.delivery.transferredAt ? (
               <p className="text-sm text-[#888]">
-                Boleto transferido a <span className="text-white">{sale.delivery.buyerEmail}</span> el {formatFullDate(sale.delivery.transferredAt)}
+                Entrada transferida a <span className="text-white">{sale.delivery.buyerEmail}</span> el {formatFullDate(sale.delivery.transferredAt)}
               </p>
             ) : (
               <p className="text-sm text-[#888]">
@@ -153,7 +153,7 @@ export default function SaleDetailPanel({
             <h3 className="text-sm font-bold mb-3 text-[#aaa]">Ganancias</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#888]">Precio de venta ({sale.ticketQuantity} boleto{sale.ticketQuantity > 1 ? "s" : ""})</span>
+                <span className="text-[#888]">Precio de venta ({sale.ticketQuantity} entrada{sale.ticketQuantity > 1 ? "s" : ""})</span>
                 <span>S/{sale.earnings.salePrice}</span>
               </div>
               <div className="flex justify-between">

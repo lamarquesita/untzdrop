@@ -34,8 +34,19 @@ export default function RootLayout({
         <StripeProvider>
           <SavedEventsProvider>
             <GlobalEffects />
-            <div className="max-w-[1440px] mx-auto">
-              {children}
+            <div className="max-w-[1440px] mx-auto relative">
+              {/* Side grid lines */}
+              <div className="pointer-events-none absolute inset-0 z-0 hidden lg:block">
+                {/* Left lines */}
+                <div className="absolute left-4 top-0 bottom-0 w-[1px] bg-[#1a1a1a]" />
+                <div className="absolute left-8 top-0 bottom-0 w-[1px] bg-[#111]" />
+                {/* Right lines */}
+                <div className="absolute right-4 top-0 bottom-0 w-[1px] bg-[#1a1a1a]" />
+                <div className="absolute right-8 top-0 bottom-0 w-[1px] bg-[#111]" />
+              </div>
+              <div className="relative z-10">
+                {children}
+              </div>
             </div>
             <CookieBanner />
           </SavedEventsProvider>

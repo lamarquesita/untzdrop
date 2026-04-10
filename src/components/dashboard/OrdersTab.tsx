@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { Order } from "@/lib/mockDashboard";
+import ReviewModal from "./ReviewModal";
 
 type SortField = "datePurchased" | "pricePerTicket" | "amountPaid";
 type SortDir = "asc" | "desc";
@@ -71,6 +72,7 @@ export default function OrdersTab({
 }) {
   const [subTab, setSubTab] = useState<"upcoming" | "attended">("upcoming");
   const [sortField, setSortField] = useState<SortField>("datePurchased");
+  const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const handleSort = (field: SortField) => {
@@ -115,7 +117,7 @@ export default function OrdersTab({
         {/* Header */}
         <div className="grid grid-cols-[2.5fr_1fr_1fr_1fr_1fr_0.8fr_0.8fr_1fr] gap-4 px-4 pb-3 border-b border-[#2A2A2A] items-center min-w-[1000px]">
           <span className="text-[#666] text-xs font-semibold uppercase tracking-wide">Evento</span>
-          <span className="text-[#666] text-xs font-semibold uppercase tracking-wide">Boletos</span>
+          <span className="text-[#666] text-xs font-semibold uppercase tracking-wide">Entradas</span>
           <span className="text-[#666] text-xs font-semibold uppercase tracking-wide">Orden #</span>
           <SortableHeader label="Fecha" field="datePurchased" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
           <SortableHeader label="Precio" field="pricePerTicket" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
@@ -183,12 +185,12 @@ export default function OrdersTab({
 
               {/* Actions */}
               <div className="flex gap-3">
-                {onViewTicket && (order.status === "confirmed" || order.status === "completed") && (
+                {(order.status === "confirmed" || order.status === "completed") && (
                   <button
-                    onClick={() => onViewTicket(order)}
-                    className="text-[11px] text-green-400 font-semibold cursor-pointer bg-transparent border-none hover:underline"
+                    onClick={() => setReviewOrder(order)}
+                    className="text-[11px] text-white font-semibold cursor-pointer bg-transparent border-none hover:underline"
                   >
-                    Ver Boleto
+                    Reseña
                   </button>
                 )}
                 <button
@@ -202,6 +204,10 @@ export default function OrdersTab({
           ))
         )}
       </div>
+
+      {reviewOrder && (
+        <ReviewModal order={reviewOrder} onClose={() => setReviewOrder(null)} />
+      )}
     </div>
   );
 }

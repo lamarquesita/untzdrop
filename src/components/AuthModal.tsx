@@ -401,19 +401,48 @@ function AvatarStep({
   onDone: () => void;
 }) {
   const [loading, setLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("La imagen no puede ser mayor a 5MB");
+      return;
+    }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
 
   const handleComplete = async () => {
+    if (!avatarFile) return;
     setLoading(true);
 
     try {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
+        // Upload avatar to Supabase storage
+        let avatarUrl: string | null = null;
+        const fileExt = avatarFile.name.split(".").pop();
+        const filePath = `${user.id}/avatar.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(filePath, avatarFile, { upsert: true });
+
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(filePath);
+          avatarUrl = urlData.publicUrl;
+        }
+
         // Check for referral code
         const referralCode = typeof window !== 'undefined' ? localStorage.getItem('untzdrop_referral') : null;
 
-        // Upsert profile in database (insert if trigger didn't create it)
+        // Upsert profile
         const { error } = await supabase
           .from('profiles')
           .upsert({
@@ -421,13 +450,13 @@ function AvatarStep({
             full_name: `${firstName} ${lastName}`.trim(),
             email: email,
             phone: user.phone,
+            ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
           });
 
         if (error) {
           console.error('Error updating profile:', error);
           alert('Error saving profile information');
         } else {
-          // Process referral if exists
           if (referralCode) {
             try {
               const { getAuthHeaders } = await import('@/lib/supabase');
@@ -442,6 +471,18 @@ function AvatarStep({
               console.error('Referral error:', e);
             }
           }
+          // Send welcome email
+          if (email) {
+            try {
+              const { getAuthHeaders } = await import('@/lib/supabase');
+              const headers = await getAuthHeaders();
+              fetch('/api/welcome-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...headers },
+                body: JSON.stringify({ name: `${firstName} ${lastName}`.trim(), email }),
+              }).catch(() => {}); // fire and forget
+            } catch {}
+          }
           onDone();
         }
       }
@@ -452,43 +493,60 @@ function AvatarStep({
       setLoading(false);
     }
   };
+
   return (
     <>
       <h2 className="text-center text-2xl font-bold mb-2 relative z-10 font-[family-name:var(--font-chakra)]">
         Agrega una foto de perfil
       </h2>
       <p className="text-center text-sm text-muted mb-4 relative z-10 font-[family-name:var(--font-chakra)]">
-        Ayuda a que te reconozcan en los eventos
+        Tu foto es requerida para crear tu cuenta
       </p>
       <p className="text-center text-xs text-muted-dark mb-6 relative z-10 font-[family-name:var(--font-chakra)]">
         Paso 3 de 3
       </p>
 
-      <div className="w-[120px] h-[120px] rounded-full bg-border-subtle border-2 border-dashed border-[#333] mx-auto mb-4 flex items-center justify-center flex-col gap-1.5 cursor-pointer hover:border-primary/50">
-        <span className="text-[28px] text-muted-dark">&#128247;</span>
-        <span className="text-[11px] text-muted-dark">Subir foto</span>
-      </div>
+      <label className="block w-[120px] h-[120px] rounded-full bg-border-subtle border-2 border-dashed border-[#333] mx-auto mb-4 flex items-center justify-center flex-col gap-1.5 cursor-pointer hover:border-primary/50 overflow-hidden">
+        {avatarPreview ? (
+          <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+        ) : (
+          <>
+            <span className="text-[28px] text-muted-dark">&#128247;</span>
+            <span className="text-[11px] text-muted-dark">Subir foto</span>
+          </>
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </label>
       <p className="text-center text-xs text-muted-dark mb-0">
-        JPG, PNG o GIF &middot; Máx 5MB
+        {avatarPreview ? (
+          <button
+            onClick={() => { setAvatarPreview(null); setAvatarFile(null); }}
+            className="text-primary cursor-pointer bg-transparent border-none text-xs hover:underline"
+          >
+            Cambiar foto
+          </button>
+        ) : (
+          <>JPG, PNG o GIF &middot; Máx 5MB</>
+        )}
       </p>
 
       <div className="min-h-[140px]" />
-      <div className="flex gap-3">
-        <button
-          onClick={handleComplete}
-          disabled={loading}
-          className="flex-1 bg-transparent border border-[#333] text-muted py-4 text-base font-semibold cursor-pointer font-[family-name:var(--font-chakra)] disabled:opacity-50"
-        >
-          {loading ? "Guardando..." : "Omitir"}
-        </button>
-        <button
-          onClick={handleComplete}
-          disabled={loading}
-          className="flex-1 bg-[#888] text-black py-4 text-base font-semibold cursor-pointer font-[family-name:var(--font-chakra)] disabled:opacity-50"
-        >
-          {loading ? "Guardando..." : "Completar"}
-        </button>
-      </div>
+      <button
+        onClick={handleComplete}
+        disabled={loading || !avatarFile}
+        className={`w-full py-4 text-base font-semibold cursor-pointer font-[family-name:var(--font-chakra)] disabled:opacity-50 border-none ${
+          avatarFile
+            ? "bg-primary text-white"
+            : "bg-[#333] text-[#666] cursor-not-allowed"
+        }`}
+      >
+        {loading ? "Guardando..." : "Completar"}
+      </button>
     </>
   );
 }

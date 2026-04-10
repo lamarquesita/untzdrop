@@ -44,10 +44,10 @@ export default function TicketModal({
           setTicketUrl(downloadUrl);
         } else {
           const data = await res.json();
-          setError(data.error || "No se pudo cargar el boleto");
+          setError(data.error || "No se pudo cargar la entrada");
         }
       } catch {
-        setError("Error al cargar el boleto");
+        setError("Error al cargar la entrada");
       }
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export default function TicketModal({
         <div className="relative bg-[#111111] border border-[#EA580B]/30 rounded-[20px] overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4">
-            <h2 className="text-lg font-bold">Tu Boleto</h2>
+            <h2 className="text-lg font-bold">Tu Entrada</h2>
             <button
               onClick={onClose}
               className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#2A2A2A] cursor-pointer bg-transparent border-none text-[#888] hover:text-white transition-colors"
@@ -124,7 +124,7 @@ export default function TicketModal({
               ) : (
                 <div className="w-[200px] h-[200px] bg-[#111111] rounded-xl flex items-center justify-center">
                   <p className="text-sm text-[#555] text-center px-4">
-                    {error || "Boleto no disponible aún"}
+                    {error || "Entrada no disponible aún"}
                   </p>
                 </div>
               )}
@@ -141,7 +141,7 @@ export default function TicketModal({
                   className="flex items-center gap-2 bg-[#2A2A2A] text-white text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-[#2A2A2A] transition-colors"
                 >
                   <Download className="w-4 h-4" />
-                  Descargar Boleto
+                  Descargar Entrada
                 </a>
               </div>
             )}
@@ -149,7 +149,7 @@ export default function TicketModal({
             {/* Ticket Info */}
             <div className="bg-[#111111] rounded-xl p-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-[#888]">Boletos</span>
+                <span className="text-[#888]">Entradas</span>
                 <span className="font-semibold">
                   {order.ticketQuantity} &times;{" "}
                   <span

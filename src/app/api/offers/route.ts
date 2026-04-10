@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseFromRequest } from '@/lib/supabase-server';
 import { stripe, createOrGetCustomer } from '@/lib/stripe';
 import { calcServiceFee } from '@/lib/supabase';
+import { sendOfferConfirmationEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -72,6 +73,30 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Send offer confirmation email (fire and forget)
+    try {
+      const { data: event } = await supabase
+        .from('events')
+        .select('name, date, venue, image_url')
+        .eq('id', event_id)
+        .single();
+
+      if (profile?.email && event) {
+        sendOfferConfirmationEmail({
+          to: profile.email,
+          offerId: offer.id,
+          eventId: event_id,
+          eventName: event.name,
+          eventDate: event.date,
+          venue: event.venue,
+          ticketType: ticket_type,
+          quantity,
+          offerPrice: price_per_ticket,
+          eventImageUrl: event.image_url,
+        }).catch(() => {});
+      }
+    } catch {}
 
     return NextResponse.json({
       client_secret: paymentIntent.client_secret,

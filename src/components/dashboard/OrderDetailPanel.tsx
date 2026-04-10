@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { X, CreditCard } from "lucide-react";
 import { Order } from "@/lib/mockDashboard";
+import { openReceipt } from "@/lib/receipt";
 import DisputeModal from "./DisputeModal";
 
 function formatFullDate(iso: string) {
@@ -38,9 +39,11 @@ function StatusBadge({ status }: { status: Order["status"] }) {
 export default function OrderDetailPanel({
   order,
   onClose,
+  onViewTicket,
 }: {
   order: Order;
   onClose: () => void;
+  onViewTicket?: () => void;
 }) {
   const [showDispute, setShowDispute] = useState(false);
 
@@ -95,8 +98,16 @@ export default function OrderDetailPanel({
               </span>
               <span className="text-xs text-[#888]">&times; {order.ticketQuantity}</span>
             </div>
-            <div className="mt-3">
+            <div className="mt-3 flex items-center gap-3">
               <StatusBadge status={order.status} />
+              {onViewTicket && (order.status === "confirmed" || order.status === "completed") && (
+                <button
+                  onClick={onViewTicket}
+                  className="btn-tag-sm bg-primary hover:brightness-110 text-white text-xs font-semibold px-4 py-2 cursor-pointer border-none transition-all"
+                >
+                  Ver Entrada
+                </button>
+              )}
             </div>
           </div>
 
@@ -107,7 +118,7 @@ export default function OrderDetailPanel({
           <div>
             <h3 className="text-sm font-bold mb-3 text-[#aaa]">Entrega</h3>
             <p className="text-sm text-[#888]">
-              Boleto entregado a <span className="text-white">{order.delivery.email}</span> el {formatFullDate(order.payment.paidAt)}
+              Entrada entregada a <span className="text-white">{order.delivery.email}</span> el {formatFullDate(order.payment.paidAt)}
             </p>
           </div>
 
@@ -129,7 +140,7 @@ export default function OrderDetailPanel({
 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-[#888]">Subtotal ({order.ticketQuantity} boleto{order.ticketQuantity > 1 ? "s" : ""})</span>
+                <span className="text-[#888]">Subtotal ({order.ticketQuantity} entrada{order.ticketQuantity > 1 ? "s" : ""})</span>
                 <span>S/{order.payment.subtotal}</span>
               </div>
               <div className="flex justify-between">
@@ -151,16 +162,21 @@ export default function OrderDetailPanel({
           <div className="border-t border-[#2A2A2A]" />
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button className="btn-tag-sm bg-[#2A2A2A] hover:bg-[#2A2A2A] text-white text-xs font-semibold px-4 py-2 cursor-pointer border-none transition-colors">
-              Ver Recibo
-            </button>
-            <button
-              onClick={() => setShowDispute(true)}
-              className="text-red-400 text-xs font-semibold cursor-pointer bg-transparent border-none hover:text-red-300 transition-colors"
-            >
-              Reportar un Problema
-            </button>
+          <div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => openReceipt(order)}
+                className="btn-tag-sm bg-[#2A2A2A] hover:bg-[#333] text-white text-xs font-semibold px-4 py-2 cursor-pointer border-none transition-colors"
+              >
+                Ver Recibo
+              </button>
+              <button
+                onClick={() => setShowDispute(true)}
+                className="text-red-400 text-xs font-semibold cursor-pointer bg-transparent border-none hover:text-red-300 transition-colors"
+              >
+                Reportar un Problema
+              </button>
+            </div>
           </div>
         </div>
       </div>

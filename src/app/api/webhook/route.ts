@@ -105,6 +105,10 @@ export async function POST(request: NextRequest) {
                   ticketType: order.ticket_type,
                   quantity: order.ticket_quantity,
                   ticketDownloadUrl: signedUrlData.signedUrl,
+                  pricePerTicket: Number(order.price_per_ticket),
+                  serviceFee: Number(order.service_fee),
+                  total: Number(order.total_amount),
+                  eventImageUrl: order.events?.image_url ?? null,
                 });
                 console.log(`Ticket email sent to ${order.delivery_email}`);
               }

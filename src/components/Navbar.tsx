@@ -254,16 +254,16 @@ export default function Navbar() {
                     transition={springs.snappy}
                   >
                     <button
-                      onClick={() => { setShowProfileMenu(false); router.push("/dashboard"); }}
-                      className="w-full text-left px-4 py-3 text-sm text-white hover:bg-[#2A2A2A] cursor-pointer bg-transparent border-none transition-colors"
-                    >
-                      Dashboard
-                    </button>
-                    <button
                       onClick={() => { setShowProfileMenu(false); router.push("/profile"); }}
                       className="w-full text-left px-4 py-3 text-sm text-white hover:bg-[#2A2A2A] cursor-pointer bg-transparent border-none transition-colors"
                     >
                       Perfil
+                    </button>
+                    <button
+                      onClick={() => { setShowProfileMenu(false); router.push("/dashboard"); }}
+                      className="w-full text-left px-4 py-3 text-sm text-white hover:bg-[#2A2A2A] cursor-pointer bg-transparent border-none transition-colors"
+                    >
+                      Dashboard
                     </button>
                   </motion.div>
                 )}

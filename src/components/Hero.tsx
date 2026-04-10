@@ -199,7 +199,7 @@ export default function Hero() {
             className="btn-tag bg-[#222] text-white px-5 py-2.5 text-[13px] font-semibold cursor-pointer inline-flex items-center gap-2 font-[family-name:var(--font-chakra)] border border-[#333]"
             whileTap={{ scale: 0.97 }}
           >
-            Log In
+            Iniciar Sesión
           </motion.button>
         </motion.div>
 
@@ -260,7 +260,7 @@ export default function Hero() {
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
           >
-            Log In
+            Iniciar Sesión
           </motion.button>
         </motion.div>
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseFromRequest, supabaseAdmin } from '@/lib/supabase-server';
 import { stripe } from '@/lib/stripe';
+import { sendPayoutOnTheWayEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,6 +87,26 @@ export async function POST(request: NextRequest) {
       .update({ status: 'completed', updated_at: new Date().toISOString() })
       .eq('seller_id', user.id)
       .in('status', ['delivered']);
+
+    // Send payout email (fire and forget)
+    try {
+      const { data: sellerProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('email')
+        .eq('id', user.id)
+        .single();
+
+      if (sellerProfile?.email) {
+        sendPayoutOnTheWayEmail({
+          to: sellerProfile.email,
+          payoutId: transfer.id,
+          amount: availableBalance,
+          method: 'Transferencia Bancaria (Stripe)',
+          destination: 'Cuenta vinculada en Stripe Connect',
+          estimatedTime: '1-2 días hábiles',
+        }).catch(() => {});
+      }
+    } catch {}
 
     return NextResponse.json({
       success: true,

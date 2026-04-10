@@ -13,6 +13,7 @@ import OrderDetailPanel from "@/components/dashboard/OrderDetailPanel";
 import SalesTab from "@/components/dashboard/SalesTab";
 import SaleDetailPanel from "@/components/dashboard/SaleDetailPanel";
 import TicketModal from "@/components/dashboard/TicketModal";
+import WalletTab from "@/components/dashboard/WalletTab";
 
 const tabs = ["Ordenes", "Ventas", "Ofertas", "Listings", "Wallet"] as const;
 type Tab = (typeof tabs)[number];
@@ -207,11 +208,7 @@ function DashboardContent() {
               onAction={() => router.push("/")}
             />
           ) : (
-            <EmptyState
-              icon={<Wallet className="w-10 h-10 text-[#333]" />}
-              title="Wallet vacio"
-              description="Tu balance y transacciones apareceran aqui"
-            />
+            <WalletTab />
           )}
         </div>
       </div>
@@ -219,7 +216,7 @@ function DashboardContent() {
 
 
       {selectedOrder && (
-        <OrderDetailPanel order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+        <OrderDetailPanel order={selectedOrder} onClose={() => setSelectedOrder(null)} onViewTicket={() => { setTicketOrder(selectedOrder); setSelectedOrder(null); }} />
       )}
 
       {selectedSale && (

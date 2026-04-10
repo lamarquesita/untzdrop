@@ -9,6 +9,8 @@ import Footer from "@/components/Footer";
 import ListingRow from "@/components/ListingRow";
 import PurchaseModal from "@/components/PurchaseModal";
 import SellModal, { Buyer, SellOrderData } from "@/components/SellModal";
+import PriceAlertModal from "@/components/PriceAlertModal";
+import NotifyModal from "@/components/NotifyModal";
 import {
   Event,
   Artist,
@@ -34,6 +36,34 @@ export default function EventDetailPage() {
   const [showSellModal, setShowSellModal] = useState(false);
   const [extraListings, setExtraListings] = useState<Listing[]>([]);
   const [buyers, setBuyers] = useState<Buyer[]>([]);
+  const [showPriceAlert, setShowPriceAlert] = useState(false);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [alertSet, setAlertSet] = useState(false);
+
+  // Check if alert is already set for this event
+  useEffect(() => {
+    const eventId = Number(params.id);
+    if (!isNaN(eventId)) {
+      const alerts = JSON.parse(localStorage.getItem("price-alerts") || "{}");
+      setAlertSet(!!alerts[eventId]);
+    }
+  }, [params.id]);
+
+  const handleAlertSet = () => {
+    const eventId = Number(params.id);
+    const alerts = JSON.parse(localStorage.getItem("price-alerts") || "{}");
+    alerts[eventId] = true;
+    localStorage.setItem("price-alerts", JSON.stringify(alerts));
+    setAlertSet(true);
+  };
+
+  const handleCancelAlert = () => {
+    const eventId = Number(params.id);
+    const alerts = JSON.parse(localStorage.getItem("price-alerts") || "{}");
+    delete alerts[eventId];
+    localStorage.setItem("price-alerts", JSON.stringify(alerts));
+    setAlertSet(false);
+  };
 
   useEffect(() => {
     const id = Number(params.id);
@@ -147,8 +177,13 @@ export default function EventDetailPage() {
               <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="btn-tag text-[10px] text-primary font-semibold bg-primary/10 px-3 py-1.5 inline-flex items-center gap-1">
                 <ExternalLink className="w-2.5 h-2.5" /> Mapa
               </a>
-              <button className="btn-tag text-[10px] text-white font-semibold bg-[#1a1a1a] px-3 py-1.5 inline-flex items-center gap-1 border-none cursor-pointer">
-                <Bell className="w-2.5 h-2.5" /> {hasListings ? "Alerta" : "Avisar"}
+              <button
+                onClick={() => alertSet ? handleCancelAlert() : hasListings ? setShowPriceAlert(true) : setShowNotifyModal(true)}
+                className={`btn-tag text-[10px] font-semibold px-3 py-1.5 inline-flex items-center gap-1 border-none cursor-pointer ${
+                  alertSet ? "text-primary bg-primary/10" : "text-white bg-[#1a1a1a]"
+                }`}
+              >
+                <Bell className="w-2.5 h-2.5" /> {alertSet ? "Cancelar Alerta" : hasListings ? "Alerta" : "Avisar"}
               </button>
             </div>
           </div>
@@ -270,9 +305,16 @@ export default function EventDetailPage() {
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-[#2a2040] to-[#2A2A2A]" />
             )}
-            <button className="btn-tag absolute top-4 right-4 flex items-center gap-2 bg-black/60 backdrop-blur-sm text-white text-sm font-medium px-5 py-2.5 hover:bg-black/80 transition-colors">
+            <button
+              onClick={() => alertSet ? handleCancelAlert() : hasListings ? setShowPriceAlert(true) : setShowNotifyModal(true)}
+              className={`btn-tag absolute top-4 right-4 flex items-center gap-2 backdrop-blur-sm text-sm font-medium px-5 py-2.5 transition-colors ${
+                alertSet
+                  ? "bg-primary/80 text-white hover:bg-primary/60"
+                  : "bg-black/60 text-white hover:bg-black/80"
+              }`}
+            >
               <Bell className="w-4 h-4" />
-              {hasListings ? "Alerta de precio" : "Avisame cuando haya boletos"}
+              {alertSet ? "Cancelar Alerta" : hasListings ? "Alerta de precio" : "Avisame cuando haya entradas"}
             </button>
           </div>
 
@@ -511,6 +553,22 @@ export default function EventDetailPage() {
             }
             setShowSellModal(false);
           }}
+        />
+      )}
+
+      {showPriceAlert && event && (
+        <PriceAlertModal
+          eventName={event.name}
+          onClose={() => setShowPriceAlert(false)}
+          onAlertSet={handleAlertSet}
+        />
+      )}
+
+      {showNotifyModal && event && (
+        <NotifyModal
+          eventName={event.name}
+          onClose={() => setShowNotifyModal(false)}
+          onAlertSet={handleAlertSet}
         />
       )}
     </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseFromRequest, supabaseAdmin } from '@/lib/supabase-server';
+import { sendListingConfirmationEmail } from '@/lib/email';
 
 // Use service role client for storage operations
 
@@ -88,6 +89,36 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       }
+
+      // Send listing confirmation email (fire and forget)
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('id', user.id)
+          .single();
+
+        const { data: event } = await supabase
+          .from('events')
+          .select('name, date, venue, image_url')
+          .eq('id', parseInt(eventId))
+          .single();
+
+        if (profile?.email && event) {
+          sendListingConfirmationEmail({
+            to: profile.email,
+            listingId: listing.id,
+            eventId: parseInt(eventId),
+            eventName: event.name,
+            eventDate: event.date,
+            venue: event.venue,
+            ticketType,
+            quantity,
+            price,
+            eventImageUrl: event.image_url,
+          }).catch(() => {});
+        }
+      } catch {}
 
       return NextResponse.json({ listing: { ...listing, ticket_file_path: uploadData.path } });
 

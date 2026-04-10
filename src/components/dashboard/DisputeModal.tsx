@@ -5,11 +5,11 @@ import { X, Upload, FileText, Trash2, AlertTriangle } from "lucide-react";
 import { Order } from "@/lib/mockDashboard";
 
 const issueTypes = [
-  { value: "invalid_ticket", label: "Boleto inválido o no funcionó" },
-  { value: "wrong_ticket", label: "Boleto incorrecto recibido" },
-  { value: "not_received", label: "Nunca recibí el boleto" },
-  { value: "duplicate", label: "Boleto duplicado o ya usado" },
-  { value: "wrong_quantity", label: "Cantidad incorrecta de boletos" },
+  { value: "invalid_ticket", label: "Entrada inválida o no funcionó" },
+  { value: "wrong_ticket", label: "Entrada incorrecta recibida" },
+  { value: "not_received", label: "Nunca recibí la entrada" },
+  { value: "duplicate", label: "Entrada duplicada o ya usada" },
+  { value: "wrong_quantity", label: "Cantidad incorrecta de entradas" },
   { value: "event_cancelled", label: "Evento cancelado" },
   { value: "other", label: "Otro problema" },
 ];
@@ -82,7 +82,7 @@ export default function DisputeModal({
       `Orden: ${order.orderNumber}\n` +
       `Evento: ${order.event.name}\n` +
       `Tipo de problema: ${issueLabel}\n` +
-      `Boletos afectados: ${ticketQuantity}\n\n` +
+      `Entradas afectadas: ${ticketQuantity}\n\n` +
       `Descripción:\n${description}\n\n` +
       (files.length > 0 ? `[${files.length} archivo(s) adjunto(s) — por favor responda a este correo para enviar la evidencia]\n` : "")
     );
@@ -105,21 +105,21 @@ export default function DisputeModal({
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-[500px] bg-[#111111] border border-[#2A2A2A] rounded-[20px] overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="relative w-full max-w-[500px] bg-[#111111] border border-[#2A2A2A] overflow-hidden max-h-[90vh] flex flex-col">
         {/* Glow */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#2A2A2A] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-red-500/15 flex items-center justify-center">
+            <div className="w-8 h-8 bg-red-500/15 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4 text-red-400" />
             </div>
             <h2 className="text-base font-bold">Reportar un Problema</h2>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#2A2A2A] cursor-pointer bg-transparent border-none text-[#888] hover:text-white transition-colors"
+            className="w-8 h-8 flex items-center justify-center  hover:bg-[#2A2A2A] cursor-pointer bg-transparent border-none text-[#888] hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -128,7 +128,7 @@ export default function DisputeModal({
         {submitted ? (
           /* Success state */
           <div className="px-6 py-12 text-center">
-            <div className="w-14 h-14 rounded-full bg-green-500/15 flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 bg-green-500/15 flex items-center justify-center mx-auto mb-4">
               <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -139,7 +139,7 @@ export default function DisputeModal({
             <p className="text-xs text-[#666] mb-6">Nuestro equipo revisará tu caso dentro de las próximas 48 horas.</p>
             <button
               onClick={onClose}
-              className="bg-[#2A2A2A] hover:bg-[#333] text-white text-sm font-semibold px-6 py-2.5 rounded-full cursor-pointer border-none transition-colors"
+              className="btn-tag-sm bg-[#2A2A2A] hover:bg-[#333] text-white text-sm font-semibold px-6 py-2.5 cursor-pointer border-none transition-colors"
             >
               Cerrar
             </button>
@@ -148,8 +148,8 @@ export default function DisputeModal({
           /* Form */
           <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
             {/* Order context */}
-            <div className="bg-[#1A1A1A] rounded-lg px-4 py-3 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#2a2040] to-[#2A2A2A] shrink-0 overflow-hidden">
+            <div className="bg-[#1A1A1A]  px-4 py-3 flex items-center gap-3">
+              <div className="w-10 h-10  bg-gradient-to-br from-[#2a2040] to-[#2A2A2A] shrink-0 overflow-hidden">
                 {order.event.image_url && (
                   <img src={order.event.image_url} alt={order.event.name} className="w-full h-full object-cover" />
                 )}
@@ -166,7 +166,7 @@ export default function DisputeModal({
               <select
                 value={issueType}
                 onChange={(e) => setIssueType(e.target.value)}
-                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-3 text-sm text-white outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
+                className="w-full bg-[#1A1A1A] border border-[#2A2A2A]  px-4 py-3 text-sm text-white outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
               >
                 <option value="" disabled>Selecciona un problema</option>
                 {issueTypes.map((t) => (
@@ -177,14 +177,14 @@ export default function DisputeModal({
 
             {/* Ticket quantity */}
             <div>
-              <label className="block text-xs font-semibold text-[#aaa] mb-2">Cantidad de boletos afectados</label>
+              <label className="block text-xs font-semibold text-[#aaa] mb-2">Cantidad de entradas afectadas</label>
               <select
                 value={ticketQuantity}
                 onChange={(e) => setTicketQuantity(Number(e.target.value))}
-                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-3 text-sm text-white outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
+                className="w-full bg-[#1A1A1A] border border-[#2A2A2A]  px-4 py-3 text-sm text-white outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
               >
                 {Array.from({ length: order.ticketQuantity }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={n}>{n} boleto{n > 1 ? "s" : ""}</option>
+                  <option key={n} value={n}>{n} entrada{n > 1 ? "s" : ""}</option>
                 ))}
               </select>
             </div>
@@ -197,7 +197,7 @@ export default function DisputeModal({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe el problema con el mayor detalle posible..."
                 rows={4}
-                className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-3 text-sm text-white outline-none focus:border-primary/50 transition-colors resize-none placeholder:text-[#555]"
+                className="w-full bg-[#1A1A1A] border border-[#2A2A2A]  px-4 py-3 text-sm text-white outline-none focus:border-primary/50 transition-colors resize-none placeholder:text-[#555]"
               />
               <div className="text-xs text-[#555] mt-1 text-right">{description.length} caracteres</div>
             </div>
@@ -206,7 +206,7 @@ export default function DisputeModal({
             <div>
               <label className="block text-xs font-semibold text-[#aaa] mb-1">Subir evidencia</label>
               <p className="text-xs text-[#555] mb-3">
-                Sube pruebas de esta transacción — ej. mensajes del vendedor, recibo del boleto, o comprobante de compra en el venue.
+                Sube pruebas de esta transacción — ej. mensajes del vendedor, recibo de la entrada, o comprobante de compra en el venue.
               </p>
 
               <div
@@ -214,7 +214,7 @@ export default function DisputeModal({
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-lg px-4 py-6 text-center cursor-pointer transition-colors ${
+                className={`border-2 border-dashed  px-4 py-6 text-center cursor-pointer transition-colors ${
                   isDragging
                     ? "border-primary/50 bg-primary/5"
                     : "border-[#2A2A2A] hover:border-[#444] bg-[#1A1A1A]"
@@ -240,9 +240,9 @@ export default function DisputeModal({
               {files.length > 0 && (
                 <div className="mt-3 space-y-2">
                   {files.map((file, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-[#1A1A1A] rounded-lg px-3 py-2">
+                    <div key={i} className="flex items-center gap-3 bg-[#1A1A1A]  px-3 py-2">
                       {file.preview ? (
-                        <img src={file.preview} alt={file.name} className="w-8 h-8 rounded object-cover shrink-0" />
+                        <img src={file.preview} alt={file.name} className="w-8 h-8 object-cover shrink-0" />
                       ) : (
                         <FileText className="w-5 h-5 text-[#555] shrink-0" />
                       )}
@@ -252,7 +252,7 @@ export default function DisputeModal({
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); removeFile(i); }}
-                        className="w-6 h-6 flex items-center justify-center rounded hover:bg-red-500/15 cursor-pointer bg-transparent border-none text-[#555] hover:text-red-400 transition-colors shrink-0"
+                        className="w-6 h-6 flex items-center justify-center hover:bg-red-500/15 cursor-pointer bg-transparent border-none text-[#555] hover:text-red-400 transition-colors shrink-0"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -269,14 +269,14 @@ export default function DisputeModal({
           <div className="px-6 py-4 border-t border-[#2A2A2A] flex items-center justify-end gap-3 shrink-0">
             <button
               onClick={onClose}
-              className="text-sm text-[#888] hover:text-white font-semibold cursor-pointer bg-transparent border border-[#333] rounded-full px-5 py-2.5 transition-colors hover:border-[#555]"
+              className="btn-tag-sm text-sm text-[#888] hover:text-white font-semibold cursor-pointer bg-transparent border border-[#333] px-5 py-2.5 transition-colors hover:border-[#555]"
             >
               Cancelar
             </button>
             <button
               onClick={handleSubmit}
               disabled={!isValid}
-              className={`text-sm text-white font-semibold cursor-pointer border-none rounded-full px-5 py-2.5 transition-all ${
+              className={`btn-tag-sm text-sm text-white font-semibold cursor-pointer border-none px-5 py-2.5 transition-all ${
                 isValid
                   ? "bg-red-500 hover:bg-red-600"
                   : "bg-[#333] text-[#666] cursor-not-allowed"

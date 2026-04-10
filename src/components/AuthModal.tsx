@@ -440,7 +440,7 @@ function PhoneStep({ phone, setPhone, onNext }: { phone: string; setPhone: (v: s
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className="w-full bg-[#888] text-black py-4 text-base font-semibold cursor-pointer font-[family-name:var(--font-chakra)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-primary hover:brightness-110 text-white py-4 text-base font-bold cursor-pointer font-[family-name:var(--font-chakra)] disabled:bg-[#333] disabled:text-[#666] disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 border-none"
       >
         {loading && <Spinner />}
         Enviar
@@ -578,7 +578,7 @@ function VerifyStep({ phone, onNext }: { phone: string; onNext: () => void }) {
       <button
         onClick={handleVerify}
         disabled={loading}
-        className="w-full bg-[#888] text-black py-4 text-base font-semibold cursor-pointer font-[family-name:var(--font-chakra)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-primary hover:brightness-110 text-white py-4 text-base font-bold cursor-pointer font-[family-name:var(--font-chakra)] disabled:bg-[#333] disabled:text-[#666] disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 border-none"
       >
         {loading && <Spinner />}
         Verificar
@@ -631,7 +631,7 @@ function NameStep({
       />
 
       <div className="min-h-[80px]" />
-      <button onClick={onNext} className="w-full bg-[#888] text-black py-4 text-base font-semibold cursor-pointer font-[family-name:var(--font-chakra)]">
+      <button onClick={onNext} className="w-full bg-primary hover:brightness-110 text-white py-4 text-base font-bold cursor-pointer font-[family-name:var(--font-chakra)] transition-all border-none">
         Continuar
       </button>
     </>
@@ -669,7 +669,7 @@ function EmailStep({
       />
 
       <div className="min-h-[140px]" />
-      <button onClick={onNext} className="w-full bg-[#888] text-black py-4 text-base font-semibold cursor-pointer font-[family-name:var(--font-chakra)]">
+      <button onClick={onNext} className="w-full bg-primary hover:brightness-110 text-white py-4 text-base font-bold cursor-pointer font-[family-name:var(--font-chakra)] transition-all border-none">
         Continuar
       </button>
     </>

@@ -37,6 +37,8 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
 
         {step === "phone" && <PhoneStep phone={phone} setPhone={setPhone} onNext={() => setStep("verify")} />}
         {step === "verify" && <VerifyStep phone={phone} onNext={async () => {
+          // Refresh session to ensure it's persisted
+          await supabase.auth.refreshSession();
           // Check if user already has a profile (returning user)
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
@@ -46,8 +48,9 @@ export default function AuthModal({ onClose }: { onClose: () => void }) {
               .eq("id", user.id)
               .maybeSingle();
             if (profile?.full_name) {
-              // Returning user — skip signup steps
+              // Returning user — skip signup steps and force a reload to ensure session is everywhere
               onClose();
+              window.location.reload();
               return;
             }
           }

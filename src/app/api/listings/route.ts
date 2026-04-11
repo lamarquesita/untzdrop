@@ -1,8 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseFromRequest, supabaseAdmin } from '@/lib/supabase-server';
 import { sendListingConfirmationEmail } from '@/lib/email';
+import sharp from 'sharp';
+import jsQR from 'jsqr';
+import crypto from 'crypto';
 
 // Use service role client for storage operations
+
+async function extractQRHash(file: File): Promise<string | null> {
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    // Convert to raw RGBA pixel data with sharp
+    const { data, info } = await sharp(buffer)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    // jsQR needs Uint8ClampedArray
+    const clampedArray = new Uint8ClampedArray(data.buffer, data.byteOffset, data.byteLength);
+    const code = jsQR(clampedArray, info.width, info.height);
+    if (!code?.data) return null;
+
+    // Hash the QR content
+    return crypto.createHash('sha256').update(code.data).digest('hex');
+  } catch (err) {
+    console.error('Error extracting QR:', err);
+    return null;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +54,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Extract and hash the QR code from the uploaded image
+    const qrHash = await extractQRHash(ticketFile);
+    if (!qrHash) {
+      return NextResponse.json(
+        { error: 'No se pudo leer el código QR de la imagen. Asegúrate de que la imagen sea clara y contenga un QR válido.' },
+        { status: 400 }
+      );
+    }
+
+    // Check for duplicate QR — same hash already listed (active)
+    const { data: existingListing } = await supabaseAdmin
+      .from('listings')
+      .select('id, status')
+      .eq('qr_hash', qrHash)
+      .in('status', ['active', 'sold'])
+      .maybeSingle();
+
+    if (existingListing) {
+      return NextResponse.json(
+        { error: 'Esta entrada ya fue publicada anteriormente. No se permiten entradas duplicadas en la plataforma.' },
+        { status: 409 }
+      );
+    }
+
     // Create listing first to get listing ID
     const { data: listing, error: listingError } = await supabase
       .from('listings')
@@ -38,6 +87,7 @@ export async function POST(request: NextRequest) {
         price,
         quantity,
         ticket_type: ticketType,
+        qr_hash: qrHash,
       })
       .select()
       .single();

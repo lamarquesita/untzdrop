@@ -130,7 +130,7 @@ export default function Navbar() {
       {/* Spacer for fixed navbar */}
       <div className="h-[77px]" />
       <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 flex items-center gap-3 md:gap-6 px-4 md:px-8 lg:px-16 h-[77px] bg-background/95 backdrop-blur-sm max-w-[1440px] mx-auto"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-full z-50 flex items-center gap-3 md:gap-6 px-4 md:px-8 lg:px-16 h-[77px] bg-background/95 backdrop-blur-sm max-w-[1440px]"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ ...springs.smooth, delay: 0.05 }}

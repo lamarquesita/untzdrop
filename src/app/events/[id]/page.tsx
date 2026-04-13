@@ -102,8 +102,8 @@ export default function EventDetailPage() {
     return (
       <div className="min-h-screen md:h-screen bg-background text-white flex flex-col md:overflow-hidden">
         <Navbar />
-        <div className="flex flex-col md:flex-row gap-6 md:gap-10 px-4 md:px-8 lg:px-16 py-4 md:py-10 flex-1 md:min-h-0">
-          <div className="w-full md:w-1/2 shrink-0 md:overflow-y-auto no-scrollbar">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-10 px-4 md:px-8 lg:px-16 py-4 md:py-10 flex-1 md:min-h-0 max-w-[1440px] mx-auto w-full">
+          <div className="w-full md:w-[45%] lg:w-1/2 shrink-0 md:overflow-y-auto no-scrollbar">
             <div className="aspect-[6/5] bg-[#1a1a1a] animate-pulse" />
           </div>
           <div className="flex-1 md:overflow-y-auto no-scrollbar space-y-4">
@@ -292,9 +292,9 @@ export default function EventDetailPage() {
       </div>
 
       {/* ═══ DESKTOP LAYOUT ═══ */}
-      <div className="hidden md:flex gap-10 px-4 md:px-8 lg:px-16 py-8 flex-1 min-h-0">
+      <div className="hidden md:flex gap-6 lg:gap-10 px-4 md:px-8 lg:px-16 py-8 flex-1 min-h-0 max-w-[1440px] mx-auto w-full">
         {/* Left column */}
-        <div className="w-1/2 shrink-0 overflow-y-auto no-scrollbar">
+        <div className="w-[45%] lg:w-1/2 shrink-0 overflow-y-auto no-scrollbar">
           <div className="relative aspect-[6/5] overflow-hidden bg-[#1a1a1a]">
             {event.image_url ? (
               <img

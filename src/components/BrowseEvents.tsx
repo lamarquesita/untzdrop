@@ -124,7 +124,7 @@ export default function BrowseEvents() {
   }, [events, dateFilter, selectedVenues, sortOrder]);
 
   return (
-    <div id="browse-events" ref={sectionRef} className="px-4 md:px-8 lg:px-16 pt-20 md:pt-36 pb-10 relative">
+    <div id="browse-events" ref={sectionRef} className="px-4 md:px-8 lg:px-16 pt-20 md:pt-36 pb-10 relative max-w-[1440px] mx-auto">
 
       <motion.h2
         className="text-xl md:text-2xl font-medium text-center mb-5 tracking-[-1.4px] relative z-10"
@@ -155,7 +155,7 @@ export default function BrowseEvents() {
       </motion.div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-3 md:gap-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-3 md:gap-y-5">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i}>
               <div className="w-full aspect-[1.5] bg-[#1a1a1a] animate-pulse mb-2.5" />
@@ -168,7 +168,7 @@ export default function BrowseEvents() {
         <div className="text-center text-text-dim py-16">No hay eventos disponibles</div>
       ) : (
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-3 md:gap-y-5"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-3 md:gap-y-5"
           variants={staggerContainer(0.06, 0.15)}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}

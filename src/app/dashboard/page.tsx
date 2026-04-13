@@ -136,7 +136,7 @@ function DashboardContent() {
     <div className="min-h-screen bg-background text-white flex flex-col">
       <Navbar />
 
-      <div className="flex-1 px-4 md:px-8 lg:px-16 py-10">
+      <div className="flex-1 px-4 md:px-8 lg:px-16 py-10 max-w-[1440px] mx-auto w-full">
         {/* Mobile: page-style header */}
         <div className="md:hidden">
           <h1 className="text-2xl font-extrabold">{activeTab}</h1>

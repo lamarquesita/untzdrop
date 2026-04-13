@@ -83,7 +83,7 @@ function SlideshowBanner() {
 
   return (
     <motion.div
-      className="w-full rounded-2xl overflow-hidden relative aspect-[2658/984]"
+      className="w-full overflow-hidden relative aspect-[2658/984]"
       onMouseEnter={stopAutoplay}
       onMouseLeave={startAutoplay}
     >
@@ -224,7 +224,7 @@ export default function Hero() {
         animate="visible"
       >
         <motion.h1
-          className="text-[64px] font-medium leading-[1.0] tracking-[-2.5px] mb-5 font-[family-name:var(--font-chakra)]"
+          className="text-[44px] lg:text-[64px] font-medium leading-[1.0] tracking-[-2.5px] mb-5 font-[family-name:var(--font-chakra)]"
           variants={fadeUpBlur}
           transition={springs.gentle}
         >

@@ -96,7 +96,7 @@ export default function TrendingEvents() {
       </motion.h2>
 
       {/* ═══ MOBILE: Auto-cycling slideshow ═══ */}
-      <div className="md:hidden rounded-xl overflow-hidden relative" style={{ background: "linear-gradient(180deg, rgba(236,130,23,0.15) 0%, rgba(236,130,23,0.10) 50%, rgba(236,130,23,0.18) 100%)" }}>
+      <div className="md:hidden overflow-hidden relative" style={{ background: "linear-gradient(180deg, rgba(236,130,23,0.15) 0%, rgba(236,130,23,0.10) 50%, rgba(236,130,23,0.18) 100%)" }}>
         <div className="p-3 relative h-[280px]">
           <AnimatePresence mode="wait">
             {events[mobileSlide] && (
@@ -143,7 +143,7 @@ export default function TrendingEvents() {
 
       {/* ═══ DESKTOP: Scrolling marquee ═══ */}
       <div
-        className="hidden md:block rounded-xl overflow-hidden"
+        className="hidden md:block overflow-hidden"
         style={{ background: "linear-gradient(180deg, rgba(236,130,23,0.15) 0%, rgba(236,130,23,0.10) 50%, rgba(236,130,23,0.18) 100%)" }}
       >
       <motion.div

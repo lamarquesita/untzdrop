@@ -27,6 +27,9 @@ export async function POST(request: NextRequest) {
         capabilities: {
           transfers: { requested: true },
         },
+        tos_acceptance: {
+          service_agreement: 'recipient',
+        },
         metadata: {
           user_id: user.id,
         },

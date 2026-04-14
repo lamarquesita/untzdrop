@@ -1,10 +1,23 @@
 import Stripe from 'stripe';
 import { supabaseAdmin } from './supabase-server';
 
-// Stripe is only initialized when STRIPE_SECRET_KEY is available (runtime, not build time)
-export const stripe = process.env.STRIPE_SECRET_KEY
-  ? new Stripe(process.env.STRIPE_SECRET_KEY)
-  : (null as unknown as Stripe);
+// Lazy-initialize Stripe via proxy so the key is read at runtime, not build time
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('STRIPE_SECRET_KEY is not set');
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  }
+  return _stripe;
+}
+
+export const stripe: Stripe = new Proxy({} as Stripe, {
+  get(_, prop) {
+    return (getStripe() as unknown as Record<string | symbol, unknown>)[prop];
+  },
+});
 
 // Helper function to create or get customer
 export async function createOrGetCustomer(userId: string, email?: string) {

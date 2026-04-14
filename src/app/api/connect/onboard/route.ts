@@ -45,8 +45,9 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id);
     }
 
-    // Create onboarding link
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    // Create onboarding link — use request origin so it works in dev + prod
+    const origin = request.headers.get('origin') || request.headers.get('referer')?.replace(/\/[^/]*$/, '') || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const siteUrl = origin.replace(/\/$/, '');
 
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
@@ -57,8 +58,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: accountLink.url });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Connect onboard error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

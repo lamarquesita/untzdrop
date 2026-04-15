@@ -66,12 +66,16 @@ export async function POST(request: NextRequest) {
     // Check for duplicate QR — same hash already listed (active)
     const { data: existingListing } = await supabaseAdmin
       .from('listings')
-      .select('id, status')
+      .select('*')
       .eq('qr_hash', qrHash)
       .in('status', ['active', 'sold'])
       .maybeSingle();
 
     if (existingListing) {
+      // If same user is re-submitting (double-click / retry), return the existing listing
+      if (existingListing.seller_id === user.id) {
+        return NextResponse.json({ listing: existingListing });
+      }
       return NextResponse.json(
         { error: 'Esta entrada ya fue publicada anteriormente. No se permiten entradas duplicadas en la plataforma.' },
         { status: 409 }

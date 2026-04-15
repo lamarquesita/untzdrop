@@ -35,7 +35,7 @@ interface SellModalProps {
   event: Event;
   buyers: Buyer[];
   onClose: () => void;
-  onComplete: (orderData: SellOrderData, ticketFile: File | null) => void;
+  onComplete: (orderData: SellOrderData, ticketFile: File | null) => void | Promise<void>;
 }
 
 export interface SellOrderData {
@@ -68,6 +68,7 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
 
   // File upload state
   const [ticketFile, setTicketFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Timer starts immediately for "Vender Ahora"
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
@@ -176,7 +177,16 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
               <ReviewStep
                 orderData={orderData}
                 onBack={goBack}
-                onComplete={() => onComplete(orderData, ticketFile)}
+                submitting={submitting}
+                onComplete={async () => {
+                  if (submitting) return;
+                  setSubmitting(true);
+                  try {
+                    await onComplete(orderData, ticketFile);
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
               />
             )}
           </>
@@ -638,7 +648,7 @@ function TransferStep({
 
 /* ── Review step ───────────────────────────────────── */
 
-function ReviewStep({ orderData, onBack, onComplete }: { orderData: SellOrderData; onBack: () => void; onComplete: () => void }) {
+function ReviewStep({ orderData, onBack, onComplete, submitting }: { orderData: SellOrderData; onBack: () => void; onComplete: () => void; submitting: boolean }) {
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   const ticketLabel = orderData.ticketType === "VIP" ? "VIP" : "Admisión General";
@@ -717,9 +727,16 @@ function ReviewStep({ orderData, onBack, onComplete }: { orderData: SellOrderDat
         </button>
         <button
           onClick={onComplete}
-          className="flex-1 bg-[#EA580B] hover:bg-[#C74A09] text-white font-bold py-3.5 text-base cursor-pointer transition-colors"
+          disabled={submitting}
+          className={`flex-1 font-bold py-3.5 text-base transition-colors flex items-center justify-center gap-2 ${
+            submitting
+              ? "bg-[#6B3D08] text-[#A0602B] cursor-not-allowed"
+              : "bg-[#EA580B] hover:bg-[#C74A09] text-white cursor-pointer"
+          }`}
         >
-          {orderData.mode === "sell"
+          {submitting ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Publicando...</>
+          ) : orderData.mode === "sell"
             ? `Vender Ahora por S/${Math.round(orderData.payout)}`
             : "Completar Venta"}
         </button>

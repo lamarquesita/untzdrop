@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
 
       if (uploadError) {
         console.error('Error uploading file:', uploadError);
-        // Delete the listing if file upload fails
-        await supabase.from('listings').delete().eq('id', listing.id);
+        // Delete the listing if file upload fails (use admin to bypass RLS)
+        await supabaseAdmin.from('listings').delete().eq('id', listing.id);
         return NextResponse.json(
           { error: 'Failed to upload ticket file' },
           { status: 500 }
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Update listing with file path
-      const { error: updateError } = await supabase
+      const { error: updateError } = await supabaseAdmin
         .from('listings')
         .update({ ticket_file_path: uploadData.path })
         .eq('id', listing.id);
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
         // Clean up uploaded file
         await supabaseAdmin.storage.from('ticket-files').remove([uploadData.path]);
         // Delete the listing
-        await supabase.from('listings').delete().eq('id', listing.id);
+        await supabaseAdmin.from('listings').delete().eq('id', listing.id);
         return NextResponse.json(
           { error: 'Failed to update listing' },
           { status: 500 }

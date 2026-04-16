@@ -247,34 +247,30 @@ export default function EventDetailPage() {
           </div>
         )}
 
-        {/* Tabs — segmented control */}
+        {/* Tabs — subtle segmented control */}
         <div className="px-4 mt-5">
-          <div className="flex gap-2 p-1 bg-[#1a1a1a] border border-[#2A2A2A]">
+          <div className="flex p-1 bg-[#161616] border border-[#222]">
             <button
               onClick={() => setActiveTab("sellers")}
-              className={`flex-1 py-2.5 px-3 text-xs font-semibold text-center transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2 px-3 text-xs font-semibold text-center transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
                 activeTab === "sellers"
-                  ? "bg-primary text-white shadow-sm"
-                  : "bg-transparent text-[#888] hover:text-white"
+                  ? "bg-[#262626] text-white"
+                  : "bg-transparent text-[#666] hover:text-[#aaa]"
               }`}
             >
               <span>Entradas disponibles</span>
-              <span className={`text-[10px] px-1.5 py-0.5 ${activeTab === "sellers" ? "bg-white/20" : "bg-[#2A2A2A] text-[#aaa]"}`}>
-                {displayListings.length}
-              </span>
+              <span className="text-[10px] text-[#888]">({displayListings.length})</span>
             </button>
             <button
               onClick={() => setActiveTab("buyers")}
-              className={`flex-1 py-2.5 px-3 text-xs font-semibold text-center transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2 px-3 text-xs font-semibold text-center transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
                 activeTab === "buyers"
-                  ? "bg-primary text-white shadow-sm"
-                  : "bg-transparent text-[#888] hover:text-white"
+                  ? "bg-[#262626] text-white"
+                  : "bg-transparent text-[#666] hover:text-[#aaa]"
               }`}
             >
               <span>Compradores interesados</span>
-              <span className={`text-[10px] px-1.5 py-0.5 ${activeTab === "buyers" ? "bg-white/20" : "bg-[#2A2A2A] text-[#aaa]"}`}>
-                {buyers.length}
-              </span>
+              <span className="text-[10px] text-[#888]">({buyers.length})</span>
             </button>
           </div>
 

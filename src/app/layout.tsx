@@ -4,6 +4,7 @@ import "./globals.css";
 import StripeProvider from "@/components/StripeProvider";
 import GlobalEffects from "@/components/effects/GlobalEffects";
 import CookieBanner from "@/components/CookieBanner";
+import ScrollToTop from "@/components/ScrollToTop";
 import { SavedEventsProvider } from "@/hooks/useSavedEvents";
 
 const inter = Inter({
@@ -34,6 +35,7 @@ export default function RootLayout({
         <StripeProvider>
           <SavedEventsProvider>
             <GlobalEffects />
+            <ScrollToTop />
             <div className="max-w-[1440px] mx-auto relative">
               {/* Side grid lines */}
               <div className="pointer-events-none absolute inset-0 z-0 hidden lg:block">

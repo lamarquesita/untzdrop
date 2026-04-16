@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Bell, MapPin, ExternalLink, Ticket, HandCoins, Tag } from "lucide-react";
+import { Bell, MapPin, ExternalLink, Ticket, HandCoins, Tag, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ListingRow from "@/components/ListingRow";
@@ -157,41 +157,78 @@ export default function EventDetailPage() {
       <Navbar />
 
       {/* ═══ MOBILE LAYOUT ═══ */}
-      <div className="md:hidden pb-24">
-        {/* Event header — image + info in one row */}
-        <div className="px-4 py-4 flex gap-4">
-          <div className="w-[100px] h-[100px] shrink-0 overflow-hidden bg-[#1a1a1a]">
-            {event.image_url ? (
-              <img src={event.image_url} alt={event.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-[#2a2040] to-[#2A2A2A]" />
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-extrabold leading-tight">{event.name}</h1>
-            <div className="text-[#888] text-xs mt-1">{formatFullDate(event.date)}</div>
-            <div className="flex items-center gap-1 text-[#888] text-xs mt-0.5">
-              <MapPin className="w-3 h-3 shrink-0" /> {event.venue}
-            </div>
-            <div className="flex gap-2 mt-2">
-              <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="btn-tag text-[10px] text-primary font-semibold bg-primary/10 px-3 py-1.5 inline-flex items-center gap-1">
-                <ExternalLink className="w-2.5 h-2.5" /> Mapa
-              </a>
+      <div className="md:hidden">
+        {/* Full-width event image with overlay action icons */}
+        <div className="relative w-full aspect-square bg-[#1a1a1a] overflow-hidden">
+          {event.image_url ? (
+            <img src={event.image_url} alt={event.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#2a2040] to-[#2A2A2A]" />
+          )}
+          {/* Subtle gradient for icon contrast */}
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
+          <div className="absolute top-4 right-4 flex gap-2">
+            {lineup.length > 0 && (
               <button
-                onClick={() => alertSet ? handleCancelAlert() : hasListings ? setShowPriceAlert(true) : setShowNotifyModal(true)}
-                className={`btn-tag text-[10px] font-semibold px-3 py-1.5 inline-flex items-center gap-1 border-none cursor-pointer ${
-                  alertSet ? "text-primary bg-primary/10" : "text-white bg-[#1a1a1a]"
-                }`}
+                onClick={() => document.getElementById("event-lineup")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center cursor-pointer border-none text-white hover:bg-black/80 transition-colors"
+                aria-label="Ver artistas"
               >
-                <Bell className="w-2.5 h-2.5" /> {alertSet ? "Cancelar Alerta" : hasListings ? "Alerta" : "Avisar"}
+                <Users className="w-5 h-5" />
               </button>
-            </div>
+            )}
+            <button
+              onClick={() => alertSet ? handleCancelAlert() : hasListings ? setShowPriceAlert(true) : setShowNotifyModal(true)}
+              className={`w-10 h-10 rounded-full backdrop-blur-sm flex items-center justify-center cursor-pointer border-none transition-colors ${
+                alertSet ? "bg-primary text-white" : "bg-black/60 text-white hover:bg-black/80"
+              }`}
+              aria-label={alertSet ? "Cancelar alerta" : "Establecer alerta"}
+            >
+              <Bell className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Event info */}
+        <div className="px-4 pt-4">
+          <h1 className="text-2xl font-extrabold leading-tight">{event.name}</h1>
+          <div className="text-[#888] text-sm mt-2">{formatFullDate(event.date)}</div>
+          <div className="flex items-center gap-1 text-[#888] text-sm mt-1">
+            <MapPin className="w-3.5 h-3.5 shrink-0" />
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-white transition-colors inline-flex items-center gap-1"
+            >
+              {event.venue}
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
+          {/* Buy / Sell buttons */}
+          <div className="flex gap-3 mt-5">
+            <button
+              onClick={() => {
+                if (displayListings.length > 0) setSelectedListing(displayListings[0]);
+                else { setActiveTab("buyers"); }
+              }}
+              className="btn-tag flex-1 bg-[#16A34A] text-white font-bold py-3 text-sm border-none cursor-pointer"
+            >
+              Comprar | {minPrice}
+            </button>
+            <button
+              onClick={() => setShowSellModal(true)}
+              className="btn-tag flex-1 bg-white text-black font-bold py-3 text-sm border-none cursor-pointer"
+            >
+              Vender | S/{highestBid}
+            </button>
           </div>
         </div>
 
         {/* Lineup */}
         {lineup.length > 0 && (
-          <div className="px-4 mt-5">
+          <div id="event-lineup" className="px-4 mt-5 scroll-mt-20">
             <div className="text-xs font-bold text-[#888] uppercase tracking-wide mb-2">Lineup</div>
             <div className="flex gap-3 overflow-x-auto pb-2">
               {lineup.map((artist) => (
@@ -279,24 +316,6 @@ export default function EventDetailPage() {
           </div>
         </div>
 
-        {/* Sticky bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t border-[#1a1a1a] px-4 py-3 flex gap-3">
-          <button
-            onClick={() => {
-              if (displayListings.length > 0) setSelectedListing(displayListings[0]);
-              else { setActiveTab("buyers"); }
-            }}
-            className="btn-tag flex-1 bg-[#16A34A] text-white font-bold py-3 text-sm border-none cursor-pointer"
-          >
-            Comprar | {minPrice}
-          </button>
-          <button
-            onClick={() => setShowSellModal(true)}
-            className="btn-tag flex-1 bg-white text-black font-bold py-3 text-sm border-none cursor-pointer"
-          >
-            Vender | S/{highestBid}
-          </button>
-        </div>
       </div>
 
       {/* ═══ DESKTOP LAYOUT ═══ */}

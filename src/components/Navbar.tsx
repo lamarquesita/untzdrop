@@ -295,73 +295,73 @@ export default function Navbar() {
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </motion.div>
         </motion.button>
-      </motion.nav>
 
-      {/* Mobile dropdown — small popout under navbar */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            {/* Transparent backdrop to close */}
-            <motion.div
-              className="fixed inset-0 z-40 md:hidden"
-              onClick={() => setMobileMenuOpen(false)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-            {/* Dropdown */}
-            <motion.div
-              className="absolute left-4 top-[52px] z-50 md:hidden bg-[#111] border border-[#222] rounded-lg shadow-2xl min-w-[200px]"
-              initial={{ opacity: 0, y: -8, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -8, scale: 0.95 }}
-              transition={{ duration: 0.15 }}
-            >
-              <div className="py-2">
-                {user ? (
-                  <>
-                    {mobileNavLinks.map((link) => (
-                      <Link
-                        key={link.href + link.label}
-                        href={link.href}
-                        onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                        className="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
-                      >
-                        <link.icon className="w-4 h-4 text-[#888]" />
-                        {link.label}
+        {/* Mobile dropdown — inside fixed nav so it stays visible on scroll */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              {/* Transparent backdrop to close */}
+              <motion.div
+                className="fixed inset-0 z-40 md:hidden"
+                onClick={() => setMobileMenuOpen(false)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              />
+              {/* Dropdown */}
+              <motion.div
+                className="absolute left-4 top-full mt-1 z-50 md:hidden bg-[#111] border border-[#222] rounded-lg shadow-2xl min-w-[200px]"
+                initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                transition={{ duration: 0.15 }}
+              >
+                <div className="py-2">
+                  {user ? (
+                    <>
+                      {mobileNavLinks.map((link) => (
+                        <Link
+                          key={link.href + link.label}
+                          href={link.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
+                        >
+                          <link.icon className="w-4 h-4 text-[#888]" />
+                          {link.label}
+                        </Link>
+                      ))}
+                      <div className="border-t border-[#222] my-1" />
+                      <Link href="/profile#referral" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+                        <Users className="w-4 h-4" />
+                        Invita Amigos →
                       </Link>
-                    ))}
-                    <div className="border-t border-[#222] my-1" />
-                    <Link href="/profile#referral" onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }} className="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
-                      <Users className="w-4 h-4" />
-                      Invita Amigos →
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    {navLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
-                        className={`block px-5 py-2.5 text-sm font-semibold transition-colors ${
-                          link.active ? "text-primary" : "text-white hover:text-primary"
-                        }`}
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-                    <div className="border-t border-[#222] my-1" />
-                    <button onClick={() => { setMobileMenuOpen(false); setShowAuth(true); }} className="block w-full text-left px-5 py-2.5 text-sm font-semibold text-primary bg-transparent border-none cursor-pointer">
-                      Iniciar Sesión
-                    </button>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+                    </>
+                  ) : (
+                    <>
+                      {navLinks.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`block px-5 py-2.5 text-sm font-semibold transition-colors ${
+                            link.active ? "text-primary" : "text-white hover:text-primary"
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                      <div className="border-t border-[#222] my-1" />
+                      <button onClick={() => { setMobileMenuOpen(false); setShowAuth(true); }} className="block w-full text-left px-5 py-2.5 text-sm font-semibold text-primary bg-transparent border-none cursor-pointer">
+                        Iniciar Sesión
+                      </button>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </motion.nav>
 
       {/* Bass drop flash overlay */}
       <AnimatePresence>

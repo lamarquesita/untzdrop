@@ -159,7 +159,7 @@ export default function EventDetailPage() {
       {/* ═══ MOBILE LAYOUT ═══ */}
       <div className="md:hidden">
         {/* Full-width event image with overlay action icons */}
-        <div className="relative w-full aspect-square bg-[#1a1a1a] overflow-hidden">
+        <div className="relative w-full aspect-[16/10] bg-[#1a1a1a] overflow-hidden">
           {event.image_url ? (
             <img src={event.image_url} alt={event.name} className="w-full h-full object-cover" />
           ) : (
@@ -171,7 +171,7 @@ export default function EventDetailPage() {
             {lineup.length > 0 && (
               <button
                 onClick={() => document.getElementById("event-lineup")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-                className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center cursor-pointer border-none text-white hover:bg-black/80 transition-colors"
+                className="w-10 h-10 bg-black/60 backdrop-blur-sm flex items-center justify-center cursor-pointer border-none text-white hover:bg-black/80 transition-colors"
                 aria-label="Ver artistas"
               >
                 <Users className="w-5 h-5" />
@@ -179,7 +179,7 @@ export default function EventDetailPage() {
             )}
             <button
               onClick={() => alertSet ? handleCancelAlert() : hasListings ? setShowPriceAlert(true) : setShowNotifyModal(true)}
-              className={`w-10 h-10 rounded-full backdrop-blur-sm flex items-center justify-center cursor-pointer border-none transition-colors ${
+              className={`w-10 h-10 backdrop-blur-sm flex items-center justify-center cursor-pointer border-none transition-colors ${
                 alertSet ? "bg-primary text-white" : "bg-black/60 text-white hover:bg-black/80"
               }`}
               aria-label={alertSet ? "Cancelar alerta" : "Establecer alerta"}

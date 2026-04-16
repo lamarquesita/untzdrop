@@ -311,7 +311,7 @@ export default function Navbar() {
             />
             {/* Dropdown */}
             <motion.div
-              className="fixed left-4 top-[60px] z-50 md:hidden bg-[#111] border border-[#222] rounded-lg shadow-2xl min-w-[200px]"
+              className="fixed left-4 top-[60px] z-50 md:hidden bg-[#111] border border-[#222] shadow-2xl min-w-[200px]"
               initial={{ opacity: 0, y: -8, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.95 }}

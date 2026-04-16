@@ -113,10 +113,10 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full sm:w-[90vw] sm:max-w-[440px] bg-[#111111] border border-[#EA580B]/30 sm:rounded-[20px] rounded-t-[20px] p-5 pt-8 sm:p-8 sm:pt-12 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div className="relative w-full h-full sm:h-auto sm:w-[90vw] sm:max-w-[440px] bg-[#111111] sm:border border-[#EA580B]/30 sm:rounded-[20px] p-5 pt-14 sm:p-8 sm:pt-12 sm:max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="absolute top-[-60px] left-1/2 -translate-x-1/2 w-[300px] h-[120px] bg-[radial-gradient(ellipse,rgba(236,130,23,0.3),transparent_70%)] pointer-events-none" />
 
         <button

@@ -57,10 +57,10 @@ export default function ReviewModal({
   const displayRating = hoveredStar ?? rating;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full max-w-[440px] bg-[#111111] border border-[#2A2A2A] overflow-hidden max-h-[90vh] flex flex-col">
+      <div className="relative w-full h-full sm:h-auto sm:max-w-[440px] bg-[#111111] sm:border border-[#2A2A2A] overflow-hidden sm:max-h-[90vh] flex flex-col">
         {/* Glow */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 

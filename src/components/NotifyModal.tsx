@@ -34,7 +34,7 @@ export default function NotifyModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4">
         <motion.div
           className="absolute inset-0 bg-black/70 backdrop-blur-sm"
           onClick={onClose}
@@ -45,7 +45,7 @@ export default function NotifyModal({
         />
 
         <motion.div
-          className="relative w-full max-w-[400px] bg-[#111111] border border-[#2A2A2A] overflow-hidden flex flex-col"
+          className="relative w-full h-full sm:h-auto sm:max-w-[400px] bg-[#111111] sm:border border-[#2A2A2A] overflow-y-auto sm:overflow-hidden flex flex-col"
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}

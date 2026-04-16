@@ -58,7 +58,7 @@ export default function OrderDetailPanel({
   return (
     <div className="fixed inset-0 z-50 flex">
       {/* Panel — left side */}
-      <div className="w-[480px] bg-[#111111] border-r border-border overflow-y-auto animate-slide-in-left">
+      <div className="w-full sm:w-[480px] bg-[#111111] sm:border-r border-border overflow-y-auto animate-slide-in-left">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-[#2A2A2A]">
           <h2 className="text-lg font-bold">Detalles del Pedido</h2>
@@ -182,7 +182,7 @@ export default function OrderDetailPanel({
       </div>
 
       {/* Backdrop — right side */}
-      <div className="flex-1 bg-black/60" onClick={onClose} />
+      <div className="hidden sm:block flex-1 bg-black/60" onClick={onClose} />
 
       {/* Dispute modal */}
       {showDispute && (

@@ -55,21 +55,21 @@ export default function TicketModal({
   }, [order.id]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center sm:p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-[400px] mx-4">
+      <div className="relative w-full h-full sm:h-auto sm:max-w-[400px]">
         {/* Orange glow */}
         <div
-          className="absolute -top-20 left-1/2 -translate-x-1/2 w-[300px] h-[120px] pointer-events-none"
+          className="hidden sm:block absolute -top-20 left-1/2 -translate-x-1/2 w-[300px] h-[120px] pointer-events-none"
           style={{
             background: "radial-gradient(ellipse, rgba(236,130,23,0.3), transparent 70%)",
           }}
         />
 
-        <div className="relative bg-[#111111] border border-[#EA580B]/30 rounded-[20px] overflow-hidden">
+        <div className="relative bg-[#111111] sm:border border-[#EA580B]/30 sm:rounded-[20px] overflow-y-auto sm:overflow-hidden h-full sm:h-auto">
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4">
             <h2 className="text-lg font-bold">Tu Entrada</h2>

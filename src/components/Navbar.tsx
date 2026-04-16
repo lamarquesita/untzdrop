@@ -128,9 +128,9 @@ export default function Navbar() {
   return (
     <>
       {/* Spacer for fixed navbar */}
-      <div className="h-[77px]" />
+      <div className="h-[56px] md:h-[77px]" />
       <motion.nav
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-full z-50 flex items-center gap-3 md:gap-6 px-4 md:px-8 lg:px-16 h-[77px] bg-background/95 backdrop-blur-sm max-w-[1440px]"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-full z-50 flex items-center gap-3 md:gap-6 px-4 md:px-8 lg:px-16 h-[56px] md:h-[77px] bg-background/95 backdrop-blur-sm max-w-[1440px]"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ ...springs.smooth, delay: 0.05 }}
@@ -311,7 +311,7 @@ export default function Navbar() {
             />
             {/* Dropdown */}
             <motion.div
-              className="absolute left-4 top-[65px] z-50 md:hidden bg-[#111] border border-[#222] rounded-lg shadow-2xl min-w-[200px]"
+              className="absolute left-4 top-[52px] z-50 md:hidden bg-[#111] border border-[#222] rounded-lg shadow-2xl min-w-[200px]"
               initial={{ opacity: 0, y: -8, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.95 }}

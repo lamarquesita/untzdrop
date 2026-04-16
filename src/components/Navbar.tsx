@@ -311,7 +311,7 @@ export default function Navbar() {
             />
             {/* Dropdown */}
             <motion.div
-              className="absolute left-4 top-[52px] z-50 md:hidden bg-[#111] border border-[#222] rounded-lg shadow-2xl min-w-[200px]"
+              className="fixed left-4 top-[56px] z-50 md:hidden bg-[#111] border border-[#222] rounded-lg shadow-2xl min-w-[200px]"
               initial={{ opacity: 0, y: -8, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -8, scale: 0.95 }}
@@ -324,7 +324,7 @@ export default function Navbar() {
                       <Link
                         key={link.href + link.label}
                         href={link.href}
-                        onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                        onClick={() => setMobileMenuOpen(false)}
                         className="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-white transition-colors"
                       >
                         <link.icon className="w-4 h-4 text-[#888]" />
@@ -332,7 +332,7 @@ export default function Navbar() {
                       </Link>
                     ))}
                     <div className="border-t border-[#222] my-1" />
-                    <Link href="/profile#referral" onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }} className="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+                    <Link href="/profile#referral" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
                       <Users className="w-4 h-4" />
                       Invita Amigos →
                     </Link>
@@ -343,7 +343,7 @@ export default function Navbar() {
                       <Link
                         key={link.href}
                         href={link.href}
-                        onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
+                        onClick={() => setMobileMenuOpen(false)}
                         className={`block px-5 py-2.5 text-sm font-semibold transition-colors ${
                           link.active ? "text-primary" : "text-white hover:text-primary"
                         }`}

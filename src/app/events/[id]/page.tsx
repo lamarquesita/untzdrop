@@ -249,6 +249,7 @@ export default function EventDetailPage() {
                   const gradient = ["from-[#06B6D4] to-[#EA580B]", "from-[#D946EF] to-[#F06529]", "from-[#10B981] to-[#06B6D4]"][idx % 3];
                   const isVip = buyer.ticket_type === "vip";
                   const color = isVip ? "#D946EF" : "#3B82F6";
+                  const typeLabel = isVip ? "VIP" : "GA";
                   return (
                     <div key={buyer.id} className="flex items-center gap-3 py-3 border-b border-[#1a1a1a]">
                       <div className={`w-8 h-8 bg-gradient-to-br ${gradient} shrink-0`} />
@@ -258,10 +259,17 @@ export default function EventDetailPage() {
                       </div>
                       <button
                         onClick={() => setShowSellModal(true)}
-                        className="btn-tag-sm text-white text-[10px] font-bold px-2.5 py-1 cursor-pointer border-none"
+                        className="btn-tag-sm p-[2px] shrink-0 cursor-pointer hover:brightness-110 transition-all border-none"
                         style={{ backgroundColor: color }}
                       >
-                        S/{displayPrice(buyer.price)}
+                        <div className="btn-tag-sm bg-background flex items-stretch">
+                          <div className="text-white text-[10px] font-bold px-2 flex items-center" style={{ backgroundColor: color }}>
+                            {typeLabel}
+                          </div>
+                          <div className="text-white text-[10px] font-bold px-2.5 py-1 flex items-center">
+                            S/{displayPrice(buyer.price)}
+                          </div>
+                        </div>
                       </button>
                     </div>
                   );
@@ -437,6 +445,7 @@ export default function EventDetailPage() {
                 ][idx % 3];
                 const isVip = buyer.ticket_type === "vip";
                 const color = isVip ? "#D946EF" : "#3B82F6";
+                const typeLabel = isVip ? "VIP" : "GA";
                 return (
                   <div key={buyer.id} className="flex items-center gap-4 py-4 border-b border-[#1a1a1a]">
                     <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
@@ -450,11 +459,9 @@ export default function EventDetailPage() {
                       style={{ backgroundColor: color }}
                     >
                       <div className="btn-tag-sm bg-background flex items-stretch">
-                        {isVip && (
-                          <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
-                            VIP
-                          </div>
-                        )}
+                        <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
+                          {typeLabel}
+                        </div>
                         <div className="text-white text-xs font-bold px-3 py-1.5 flex items-center">
                           S/{displayPrice(buyer.price)} cu
                         </div>

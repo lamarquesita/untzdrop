@@ -29,6 +29,7 @@ export default function ListingRow({ listing, index, onSelect }: ListingRowProps
 
   const isVip = listing.ticket_type === "vip";
   const color = isVip ? "#D946EF" : "#3B82F6";
+  const typeLabel = isVip ? "VIP" : "GA";
 
   return (
     <div className="flex items-center gap-4 py-4 border-b border-[#1a1a1a]">
@@ -43,11 +44,9 @@ export default function ListingRow({ listing, index, onSelect }: ListingRowProps
         style={{ backgroundColor: color }}
       >
         <div className="btn-tag-sm bg-background flex items-stretch">
-          {isVip && (
-            <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
-              VIP
-            </div>
-          )}
+          <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
+            {typeLabel}
+          </div>
           <div className="text-white text-xs font-bold px-3 py-1.5 flex items-center">
             S/{displayPrice(listing.price)} cu
           </div>

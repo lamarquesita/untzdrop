@@ -247,24 +247,34 @@ export default function EventDetailPage() {
           </div>
         )}
 
-        {/* Tabs */}
+        {/* Tabs — segmented control */}
         <div className="px-4 mt-5">
-          <div className="flex border-b border-[#222]">
+          <div className="flex gap-2 p-1 bg-[#1a1a1a] border border-[#2A2A2A]">
             <button
               onClick={() => setActiveTab("sellers")}
-              className={`flex-1 pb-2.5 text-xs font-semibold text-center transition-colors cursor-pointer bg-transparent border-none ${
-                activeTab === "sellers" ? "text-white border-b-2 border-primary" : "text-[#555]"
+              className={`flex-1 py-2.5 px-3 text-xs font-semibold text-center transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
+                activeTab === "sellers"
+                  ? "bg-primary text-white shadow-sm"
+                  : "bg-transparent text-[#888] hover:text-white"
               }`}
             >
-              Boletos ({displayListings.length})
+              <span>Entradas disponibles</span>
+              <span className={`text-[10px] px-1.5 py-0.5 ${activeTab === "sellers" ? "bg-white/20" : "bg-[#2A2A2A] text-[#aaa]"}`}>
+                {displayListings.length}
+              </span>
             </button>
             <button
               onClick={() => setActiveTab("buyers")}
-              className={`flex-1 pb-2.5 text-xs font-semibold text-center transition-colors cursor-pointer bg-transparent border-none ${
-                activeTab === "buyers" ? "text-white border-b-2 border-primary" : "text-[#555]"
+              className={`flex-1 py-2.5 px-3 text-xs font-semibold text-center transition-all cursor-pointer border-none flex items-center justify-center gap-1.5 ${
+                activeTab === "buyers"
+                  ? "bg-primary text-white shadow-sm"
+                  : "bg-transparent text-[#888] hover:text-white"
               }`}
             >
-              Compradores ({buyers.length})
+              <span>Compradores interesados</span>
+              <span className={`text-[10px] px-1.5 py-0.5 ${activeTab === "buyers" ? "bg-white/20" : "bg-[#2A2A2A] text-[#aaa]"}`}>
+                {buyers.length}
+              </span>
             </button>
           </div>
 
@@ -435,7 +445,7 @@ export default function EventDetailPage() {
                   : "text-[#555] hover:text-[#888]"
               }`}
             >
-              Boletos Disponibles
+              Entradas disponibles
             </button>
             <button
               onClick={() => setActiveTab("buyers")}
@@ -445,7 +455,7 @@ export default function EventDetailPage() {
                   : "text-[#555] hover:text-[#888]"
               }`}
             >
-              Compradores Interesados
+              Compradores interesados
             </button>
           </div>
 

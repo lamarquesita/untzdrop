@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Star, Info, ChevronDown, Upload, X, FileCheck, Loader2, Clock } from "lucide-react";
+import { Star, Info, ChevronDown, Upload, X, FileCheck, Loader2, Clock, CheckCircle2 } from "lucide-react";
 import jsQR from "jsqr";
 import { Event, calcServiceFee, displayPrice, formatFullDate } from "@/lib/supabase";
 
@@ -35,7 +35,7 @@ interface SellModalProps {
   event: Event;
   buyers: Buyer[];
   onClose: () => void;
-  onComplete: (orderData: SellOrderData, ticketFile: File | null) => void | Promise<void>;
+  onComplete: (orderData: SellOrderData, ticketFile: File | null) => Promise<{ ok: boolean; error?: string }>;
 }
 
 export interface SellOrderData {
@@ -69,6 +69,8 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
   // File upload state
   const [ticketFile, setTicketFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Timer starts immediately for "Vender Ahora"
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
@@ -111,10 +113,10 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-[90vw] max-w-[440px] bg-[#111111] border border-[#EA580B]/30 rounded-[20px] p-6 pt-10 sm:p-8 sm:pt-12 max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div className="relative w-full sm:w-[90vw] sm:max-w-[440px] bg-[#111111] border border-[#EA580B]/30 sm:rounded-[20px] rounded-t-[20px] p-5 pt-8 sm:p-8 sm:pt-12 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto no-scrollbar">
         <div className="absolute top-[-60px] left-1/2 -translate-x-1/2 w-[300px] h-[120px] bg-[radial-gradient(ellipse,rgba(236,130,23,0.3),transparent_70%)] pointer-events-none" />
 
         <button
@@ -134,7 +136,9 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
           </div>
         )}
 
-        {expired ? (
+        {success ? (
+          <SuccessStep orderData={orderData} eventName={event.name} mode={mode} onClose={onClose} />
+        ) : expired ? (
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <Clock className="w-12 h-12 text-[#555]" />
             <h3 className="text-lg font-bold">Tu sesión ha expirado</h3>
@@ -178,11 +182,20 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
                 orderData={orderData}
                 onBack={goBack}
                 submitting={submitting}
+                error={submitError}
                 onComplete={async () => {
                   if (submitting) return;
                   setSubmitting(true);
+                  setSubmitError(null);
                   try {
-                    await onComplete(orderData, ticketFile);
+                    const result = await onComplete(orderData, ticketFile);
+                    if (result.ok) {
+                      setSuccess(true);
+                    } else {
+                      setSubmitError(result.error || "Error al publicar la entrada");
+                    }
+                  } catch {
+                    setSubmitError("Error al publicar la entrada");
                   } finally {
                     setSubmitting(false);
                   }
@@ -648,7 +661,7 @@ function TransferStep({
 
 /* ── Review step ───────────────────────────────────── */
 
-function ReviewStep({ orderData, onBack, onComplete, submitting }: { orderData: SellOrderData; onBack: () => void; onComplete: () => void; submitting: boolean }) {
+function ReviewStep({ orderData, onBack, onComplete, submitting, error }: { orderData: SellOrderData; onBack: () => void; onComplete: () => void; submitting: boolean; error?: string | null }) {
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   const ticketLabel = orderData.ticketType === "VIP" ? "VIP" : "Admisión General";
@@ -717,11 +730,19 @@ function ReviewStep({ orderData, onBack, onComplete, submitting }: { orderData: 
         </p>
       </div>
 
+      {/* Error */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-300 text-xs rounded">
+          {error}
+        </div>
+      )}
+
       {/* Buttons */}
       <div className="flex gap-3">
         <button
           onClick={onBack}
-          className="w-1/3 bg-[#2C2C2C] text-white font-semibold py-3.5 text-base cursor-pointer hover:brightness-110 transition-colors"
+          disabled={submitting}
+          className="w-1/3 bg-[#2C2C2C] text-white font-semibold py-3.5 text-base cursor-pointer hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Atrás
         </button>
@@ -741,6 +762,59 @@ function ReviewStep({ orderData, onBack, onComplete, submitting }: { orderData: 
             : "Completar Venta"}
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ── Success step ──────────────────────────────────── */
+
+function SuccessStep({ orderData, eventName, mode, onClose }: { orderData: SellOrderData; eventName: string; mode: Mode; onClose: () => void }) {
+  const ticketLabel = orderData.ticketType === "VIP" ? "VIP" : "Admisión General";
+  const isSell = mode === "sell";
+
+  return (
+    <div className="flex flex-col items-center text-center py-6">
+      <div className="relative mb-5">
+        <div className="absolute inset-0 bg-[#EA580B]/20 blur-2xl rounded-full" />
+        <div className="relative w-16 h-16 rounded-full bg-[#EA580B]/10 border-2 border-[#EA580B] flex items-center justify-center">
+          <CheckCircle2 className="w-9 h-9 text-[#EA580B]" />
+        </div>
+      </div>
+
+      <h3 className="text-xl font-bold mb-2">
+        {isSell ? "¡Venta completada!" : "¡Entrada publicada!"}
+      </h3>
+      <p className="text-sm text-[#888] mb-6 max-w-[320px]">
+        {isSell
+          ? "Tu entrada fue vendida. UntzDrop coordinará la entrega con el comprador."
+          : "Tu entrada ya está visible para los compradores. Te avisaremos cuando alguien la compre."}
+      </p>
+
+      <div className="w-full bg-[#1a1a1a] border border-[#222] p-4 mb-6 text-left space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-[#888]">Evento</span>
+          <span className="font-semibold text-right max-w-[60%] truncate">{eventName}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-[#888]">Cantidad</span>
+          <span className="font-semibold">{orderData.quantity}x {ticketLabel}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-[#888]">Precio por entrada</span>
+          <span className="font-semibold">S/{Math.round(orderData.unitPrice)}</span>
+        </div>
+        <div className="border-t border-[#222] pt-3 flex justify-between text-base font-bold">
+          <span>{isSell ? "Total recibido" : "Total a recibir"}</span>
+          <span className="text-[#EA580B]">S/{Math.round(orderData.payout)}</span>
+        </div>
+      </div>
+
+      <button
+        onClick={onClose}
+        className="w-full bg-[#EA580B] hover:bg-[#C74A09] text-white font-bold py-3.5 text-base cursor-pointer transition-colors"
+      >
+        Listo
+      </button>
     </div>
   );
 }

@@ -501,16 +501,15 @@ export default function EventDetailPage() {
 
                 if (response.ok) {
                   const { listing } = await response.json();
-                  // Add the new listing to the page
                   setExtraListings((prev) => [...prev, listing]);
-                  alert('¡Listing creado exitosamente!');
+                  return { ok: true };
                 } else {
                   const error = await response.json();
-                  alert(`Error: ${error.error || 'Failed to create listing'}`);
+                  return { ok: false, error: error.error || 'Failed to create listing' };
                 }
               } catch (error) {
                 console.error('Error creating listing:', error);
-                alert('Error creating listing');
+                return { ok: false, error: 'Error creating listing' };
               }
             } else if (order.mode === "sell" && ticketFile) {
               // "Vender Ahora" — create listing + upload ticket (same API)
@@ -541,17 +540,17 @@ export default function EventDetailPage() {
                         : prev.filter((b) => b.id !== highest.id)
                     );
                   }
-                  alert('¡Venta completada! Tu boleto ha sido listado.');
+                  return { ok: true };
                 } else {
                   const error = await response.json();
-                  alert(`Error: ${error.error || 'Error al crear la venta'}`);
+                  return { ok: false, error: error.error || 'Error al crear la venta' };
                 }
               } catch (error) {
                 console.error('Error processing instant sell:', error);
-                alert('Error al procesar la venta');
+                return { ok: false, error: 'Error al procesar la venta' };
               }
             }
-            setShowSellModal(false);
+            return { ok: false, error: 'Falta el archivo de la entrada' };
           }}
         />
       )}

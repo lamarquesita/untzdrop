@@ -88,7 +88,7 @@ export default function EventDetailPage() {
         // Map offers to Buyer format
         setBuyers(offersData.map((o) => ({
           id: o.id,
-          name: o.buyer_name?.trim() || "Comprador anónimo",
+          name: o.buyer_name?.trim().split(" ")[0] || "Comprador anónimo",
           quantity: o.quantity,
           price: o.price,
           ticket_type: o.ticket_type,

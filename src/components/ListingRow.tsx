@@ -19,7 +19,7 @@ interface ListingRowProps {
 
 export default function ListingRow({ listing, index, onSelect }: ListingRowProps) {
   const gradient = GRADIENT_PALETTE[index % GRADIENT_PALETTE.length];
-  const sellerName = listing.seller_name?.trim() || "Vendedor anónimo";
+  const sellerName = listing.seller_name?.trim().split(" ")[0] || "Vendedor anónimo";
 
   const ticketLabel = listing.quantity === 1
     ? "1 entrada"

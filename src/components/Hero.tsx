@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowUpRight, Instagram, Music, ExternalLink, Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeUpBlur, fadeUp, staggerContainer, springs } from "@/lib/animations";
+import { supabase, type Event, formatEventDate } from "@/lib/supabase";
 import AudioWave from "./effects/AudioWave";
 
 /* ─── Slideshow slides data ────────────────────────────────── */
@@ -183,36 +185,11 @@ export default function Hero() {
         </motion.p>
 
         <motion.div
-          className="flex items-center gap-3 mb-6"
+          className="w-full"
           variants={fadeUp}
           transition={springs.smooth}
         >
-          <motion.button
-            onClick={() => document.getElementById("browse-events")?.scrollIntoView({ behavior: "smooth" })}
-            className="btn-tag bg-primary text-white px-5 py-2.5 text-[13px] font-semibold cursor-pointer inline-flex items-center gap-2 font-[family-name:var(--font-chakra)]"
-            whileTap={{ scale: 0.97 }}
-          >
-            Únete a la escena <ArrowUpRight className="w-3.5 h-3.5" />
-          </motion.button>
-          <motion.button
-            onClick={() => document.dispatchEvent(new CustomEvent("open-auth-modal"))}
-            className="btn-tag bg-[#222] text-white px-5 py-2.5 text-[13px] font-semibold cursor-pointer inline-flex items-center gap-2 font-[family-name:var(--font-chakra)] border border-[#333]"
-            whileTap={{ scale: 0.97 }}
-          >
-            Iniciar Sesión
-          </motion.button>
-        </motion.div>
-
-        {/* Slideshow banner */}
-        <motion.div
-          className="w-full"
-          variants={{
-            hidden: { opacity: 0, y: 20, scale: 0.97 },
-            visible: { opacity: 1, y: 0, scale: 1 },
-          }}
-          transition={springs.gentle}
-        >
-          <SlideshowBanner />
+          <MobileSearchBar />
         </motion.div>
       </motion.div>
 
@@ -277,5 +254,120 @@ export default function Hero() {
         </motion.div>
       </motion.div>
     </section>
+  );
+}
+
+/* ─── Mobile search bar (events + venues) ───────────── */
+function MobileSearchBar() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Event[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (query.trim().length < 2) {
+      setResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      const { data, error } = await supabase
+        .from("events_with_pricing")
+        .select("*")
+        .or(`name.ilike.%${query}%,venue.ilike.%${query}%`)
+        .order("date", { ascending: true })
+        .limit(6);
+
+      if (!error && data) {
+        setResults(data);
+        setShowResults(true);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [query]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={containerRef} className="relative text-left">
+      <div className="bg-surface border border-border flex items-center gap-2 px-4 h-[48px]">
+        <Search className="w-5 h-5 text-muted shrink-0" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => results.length > 0 && setShowResults(true)}
+          placeholder="Busca eventos, artistas o lugares"
+          className="bg-transparent border-none text-white text-[13px] outline-none w-full placeholder:text-muted"
+        />
+        {query && (
+          <button
+            onClick={() => { setQuery(""); setResults([]); setShowResults(false); }}
+            className="text-muted text-sm cursor-pointer bg-transparent border-none hover:text-white"
+          >
+            &#10005;
+          </button>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {showResults && (
+          <motion.div
+            className="absolute top-full left-0 right-0 mt-2 bg-[#181818] border border-border overflow-hidden z-50 shadow-2xl"
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={springs.snappy}
+          >
+            {results.length === 0 ? (
+              <div className="px-4 py-6 text-center text-sm text-muted">
+                No se encontraron resultados
+              </div>
+            ) : (
+              results.map((event, i) => (
+                <motion.div
+                  key={event.id}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-[#2A2A2A] cursor-pointer transition-colors"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ ...springs.snappy, delay: i * 0.04 }}
+                  onClick={() => { setShowResults(false); setQuery(""); router.push(`/events/${event.id}`); }}
+                >
+                  <div className="w-12 h-12 bg-[#1a1a1a] shrink-0 overflow-hidden">
+                    {event.image_url ? (
+                      <img src={event.image_url} alt={event.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#2a2040] to-[#2A2A2A]" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold truncate">{event.name}</div>
+                    <div className="text-xs text-text-dim truncate">
+                      {formatEventDate(event.date)} &middot; {event.venue}
+                    </div>
+                  </div>
+                  {event.min_price != null && (
+                    <div className="text-xs font-semibold text-primary shrink-0">
+                      S/{Math.round(event.min_price)}
+                    </div>
+                  )}
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

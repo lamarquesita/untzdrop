@@ -181,7 +181,7 @@ export default function Hero() {
           transition={springs.smooth}
         >
           La plataforma donde la escena se conecta.
-          Encuentra tickets o revende los tuyos de forma segura y entre personas reales
+          Encuentra entradas o revende las tuyas de forma segura y entre personas reales
         </motion.p>
 
         <motion.div
@@ -215,7 +215,7 @@ export default function Hero() {
           transition={springs.smooth}
         >
           La plataforma donde la escena se conecta.
-          Encuentra tickets o revende los tuyos de forma segura, rápida y entre personas reales
+          Encuentra entradas o revende las tuyas de forma segura, rápida y entre personas reales
         </motion.p>
 
         <motion.div

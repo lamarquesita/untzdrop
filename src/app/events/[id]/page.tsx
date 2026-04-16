@@ -88,7 +88,7 @@ export default function EventDetailPage() {
         // Map offers to Buyer format
         setBuyers(offersData.map((o) => ({
           id: o.id,
-          name: o.buyer_id.slice(0, 4) + "..." + o.buyer_id.slice(-4),
+          name: o.buyer_name?.trim() || "Comprador anónimo",
           quantity: o.quantity,
           price: o.price,
           ticket_type: o.ticket_type,
@@ -254,7 +254,7 @@ export default function EventDetailPage() {
                     <div key={buyer.id} className="flex items-center gap-3 py-3 border-b border-[#1a1a1a]">
                       <div className={`w-8 h-8 bg-gradient-to-br ${gradient} shrink-0`} />
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold">{buyer.quantity === 1 ? "1 ticket" : `1-${buyer.quantity} tickets`}</div>
+                        <div className="text-xs font-semibold">{buyer.quantity === 1 ? "1 entrada" : `1-${buyer.quantity} entradas`}</div>
                         <div className="text-[10px] text-[#888]">{buyer.name}</div>
                       </div>
                       <button
@@ -450,7 +450,7 @@ export default function EventDetailPage() {
                   <div key={buyer.id} className="flex items-center gap-4 py-4 border-b border-[#1a1a1a]">
                     <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold">{buyer.quantity === 1 ? "1 ticket" : `1-${buyer.quantity} tickets`}</div>
+                      <div className="text-sm font-semibold">{buyer.quantity === 1 ? "1 entrada" : `1-${buyer.quantity} entradas`}</div>
                       <div className="text-xs text-[#888]">{buyer.name}</div>
                     </div>
                     <button

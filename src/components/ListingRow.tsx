@@ -19,13 +19,11 @@ interface ListingRowProps {
 
 export default function ListingRow({ listing, index, onSelect }: ListingRowProps) {
   const gradient = GRADIENT_PALETTE[index % GRADIENT_PALETTE.length];
-  const sellerName = listing.seller_id.length > 8
-    ? listing.seller_id.slice(0, 4) + "..." + listing.seller_id.slice(-4)
-    : listing.seller_id;
+  const sellerName = listing.seller_name?.trim() || "Vendedor anónimo";
 
   const ticketLabel = listing.quantity === 1
-    ? "1 ticket"
-    : `1-${listing.quantity} tickets`;
+    ? "1 entrada"
+    : `1-${listing.quantity} entradas`;
 
   const isVip = listing.ticket_type === "vip";
   const color = isVip ? "#D946EF" : "#3B82F6";

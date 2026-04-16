@@ -111,6 +111,7 @@ export interface Listing {
   status: string;
   ticket_type: "ga" | "vip";
   created_at: string;
+  seller_name?: string | null;
 }
 
 export async function getEventById(id: number): Promise<Event | null> {
@@ -128,6 +129,22 @@ export async function getEventById(id: number): Promise<Event | null> {
   return data;
 }
 
+async function fetchProfileNames(ids: string[]): Promise<Record<string, string | null>> {
+  if (ids.length === 0) return {};
+  try {
+    const res = await fetch("/api/profile/names", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    });
+    if (!res.ok) return {};
+    const json = await res.json();
+    return json.names ?? {};
+  } catch {
+    return {};
+  }
+}
+
 export async function getListingsByEventId(eventId: number): Promise<Listing[]> {
   const { data, error } = await supabase
     .from("listings")
@@ -140,7 +157,12 @@ export async function getListingsByEventId(eventId: number): Promise<Listing[]> 
     console.error("Error fetching listings:", error);
     return [];
   }
-  return data ?? [];
+  const listings = data ?? [];
+  if (listings.length === 0) return [];
+
+  const sellerIds = Array.from(new Set(listings.map((l) => l.seller_id)));
+  const names = await fetchProfileNames(sellerIds);
+  return listings.map((l) => ({ ...l, seller_name: names[l.seller_id] ?? null }));
 }
 
 export async function getLineupByEventId(eventId: number): Promise<Artist[]> {
@@ -166,6 +188,7 @@ export interface Offer {
   ticket_type: "ga" | "vip";
   status: string;
   created_at: string;
+  buyer_name?: string | null;
 }
 
 export async function getOffersByEventId(eventId: number): Promise<Offer[]> {
@@ -180,7 +203,12 @@ export async function getOffersByEventId(eventId: number): Promise<Offer[]> {
     // offers table may not exist yet
     return [];
   }
-  return data ?? [];
+  const offers = data ?? [];
+  if (offers.length === 0) return [];
+
+  const buyerIds = Array.from(new Set(offers.map((o) => o.buyer_id)));
+  const names = await fetchProfileNames(buyerIds);
+  return offers.map((o) => ({ ...o, buyer_name: names[o.buyer_id] ?? null }));
 }
 
 export function formatFullDate(dateStr: string): string {

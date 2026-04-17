@@ -8,7 +8,7 @@ export async function PATCH(
   try {
     const supabase = createSupabaseFromRequest(request);
     const { id } = await params;
-    const { price } = await request.json();
+    const { price, quantity } = await request.json();
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -30,9 +30,14 @@ export async function PATCH(
       return NextResponse.json({ error: 'Precio inválido' }, { status: 400 });
     }
 
+    const updateData: Record<string, number> = { price: Number(price) };
+    if (quantity && Number(quantity) > 0) {
+      updateData.quantity = Number(quantity);
+    }
+
     const { data: updated, error } = await supabaseAdmin
       .from('listings')
-      .update({ price: Number(price) })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();

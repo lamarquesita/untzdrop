@@ -14,15 +14,16 @@ interface EditListingModalProps {
 
 export default function EditListingModal({ listing, event, onClose, onUpdated, onDeleted }: EditListingModalProps) {
   const [price, setPrice] = useState(String(listing.price));
+  const [quantity, setQuantity] = useState(listing.quantity);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const priceNum = Number(price) || 0;
-  const changed = priceNum !== listing.price && priceNum > 0;
+  const changed = (priceNum !== listing.price || quantity !== listing.quantity) && priceNum > 0 && quantity > 0;
 
-  const subtotal = priceNum * listing.quantity;
+  const subtotal = priceNum * quantity;
   const serviceFee = calcServiceFee(subtotal);
   const totalEarnings = subtotal - serviceFee;
 
@@ -35,7 +36,7 @@ export default function EditListingModal({ listing, event, onClose, onUpdated, o
       const res = await fetch(`/api/listings/${listing.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json", ...authHeaders },
-        body: JSON.stringify({ price: priceNum }),
+        body: JSON.stringify({ price: priceNum, quantity }),
       });
       if (res.ok) {
         const { listing: updated } = await res.json();
@@ -107,6 +108,24 @@ export default function EditListingModal({ listing, event, onClose, onUpdated, o
           </div>
         </div>
 
+        {/* Quantity */}
+        <label className="block text-xs font-semibold text-[#aaa] mb-2">Cantidad de entradas</label>
+        <div className="flex items-center gap-3 mb-5">
+          <button
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="w-10 h-10 bg-[#1A1A1A] border border-[#2A2A2A] text-white text-lg font-bold cursor-pointer hover:bg-[#222] transition-colors flex items-center justify-center"
+          >
+            -
+          </button>
+          <span className="text-sm font-bold w-8 text-center">{quantity}</span>
+          <button
+            onClick={() => setQuantity(quantity + 1)}
+            className="w-10 h-10 bg-[#1A1A1A] border border-[#2A2A2A] text-white text-lg font-bold cursor-pointer hover:bg-[#222] transition-colors flex items-center justify-center"
+          >
+            +
+          </button>
+        </div>
+
         {/* Price input */}
         <label className="block text-xs font-semibold text-[#aaa] mb-2">Precio por entrada</label>
         <div className="flex items-center bg-[#1A1A1A] border border-[#2A2A2A] focus-within:border-[#EA580B]/50 transition-colors mb-5">
@@ -124,7 +143,7 @@ export default function EditListingModal({ listing, event, onClose, onUpdated, o
         <div className="bg-[#1A1A1A] border border-[#222] p-4 mb-4 space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-[#888]">Cantidad</span>
-            <span>{listing.quantity} {listing.quantity === 1 ? "entrada" : "entradas"}</span>
+            <span>{quantity} {quantity === 1 ? "entrada" : "entradas"}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#888]">Precio por entrada</span>

@@ -250,24 +250,20 @@ export default function ProfilePage() {
       <div className="md:hidden flex-1">
         {/* Profile header */}
         <div className="px-4 pt-6 pb-5 text-center">
-          <div className="grid grid-cols-2 gap-3 max-w-[176px] mx-auto mb-3">
-            <div className="w-20 h-20 bg-gradient-to-br from-primary to-[#D946EF] flex items-center justify-center text-white text-2xl font-bold">
-              {displayName.charAt(0)}
-            </div>
-            {[0, 1, 2].map((i) => (
-              photos[i] ? (
-                <div key={i} className="relative w-20 h-20 bg-[#181818] overflow-hidden group">
-                  <img src={photos[i]} alt="" className="w-full h-full object-cover" />
-                  <button onClick={() => removePhoto(i)} className="absolute top-1 right-1 w-5 h-5 bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer border-none">
-                    <XIcon className="w-2.5 h-2.5 text-white" />
-                  </button>
-                </div>
-              ) : (
-                <button key={i} onClick={handleAddPhoto} className="w-20 h-20 bg-[#181818] border border-dashed border-[#2A2A2A] flex items-center justify-center cursor-pointer">
-                  <Plus className="w-5 h-5 text-[#555]" />
-                </button>
-              )
-            ))}
+          <div className="w-24 h-24 mx-auto mb-3 relative">
+            {photos[0] ? (
+              <img src={photos[0]} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <button onClick={handleAddPhoto} className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex flex-col items-center justify-center cursor-pointer gap-1">
+                <Plus className="w-5 h-5 text-[#555]" />
+                <span className="text-[10px] text-[#555]">Foto</span>
+              </button>
+            )}
+            {photos[0] && (
+              <button onClick={handleAddPhoto} className="absolute bottom-0 right-0 w-7 h-7 bg-[#EA580B] flex items-center justify-center cursor-pointer border-2 border-background">
+                <Plus className="w-3.5 h-3.5 text-white" />
+              </button>
+            )}
           </div>
           <h1 className="text-xl font-extrabold">{displayName}</h1>
           <div className="text-xs text-[#666] mt-1">Miembro desde {joinStr}</div>
@@ -521,8 +517,14 @@ export default function ProfilePage() {
             {/* Profile Preview Card */}
             <div className="bg-[#181818] border border-[#2A2A2A] rounded-none p-5">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-primary to-[#D946EF] flex items-center justify-center text-white text-lg font-bold shrink-0">
-                  {displayName.charAt(0)}
+                <div className="w-14 h-14 shrink-0 relative cursor-pointer" onClick={handleAddPhoto}>
+                  {photos[0] ? (
+                    <img src={photos[0]} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-[#222] border border-dashed border-[#444] flex items-center justify-center">
+                      <Plus className="w-5 h-5 text-[#555]" />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <div className="font-bold text-base">{displayName}</div>

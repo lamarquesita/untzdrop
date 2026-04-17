@@ -115,6 +115,7 @@ export async function POST(request: NextRequest) {
       customerId,
       paymentMethodId: payment_method_id,
       orderId: order.id.toString(),
+      saveCard: save_card,
     });
 
     // Update order with payment intent ID

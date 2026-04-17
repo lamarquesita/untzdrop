@@ -54,11 +54,13 @@ export async function createPaymentIntent({
   customerId,
   paymentMethodId,
   orderId,
+  saveCard,
 }: {
   amount: number;
   customerId?: string;
   paymentMethodId?: string;
   orderId: string;
+  saveCard?: boolean;
 }) {
   const paymentIntentData: Stripe.PaymentIntentCreateParams = {
     amount: Math.round(amount * 100), // Convert to centavos
@@ -70,6 +72,9 @@ export async function createPaymentIntent({
 
   if (customerId) {
     paymentIntentData.customer = customerId;
+    if (saveCard) {
+      paymentIntentData.setup_future_usage = 'off_session';
+    }
   }
 
   if (paymentMethodId) {

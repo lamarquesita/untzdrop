@@ -65,6 +65,27 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
   const [paymentError, setPaymentError] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<"card" | "apple">("card");
   const [cardLast4, setCardLast4] = useState<string>("");
+  const [saveCard, setSaveCard] = useState(false);
+  const [savedCards, setSavedCards] = useState<{ id: string; brand: string; last4: string; exp_month: number; exp_year: number }[]>([]);
+  const [selectedSavedCard, setSelectedSavedCard] = useState<string | null>(null);
+
+  // Load saved cards on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const authHeaders = await getAuthHeaders();
+        const res = await fetch("/api/saved-cards", { headers: authHeaders });
+        if (res.ok) {
+          const { paymentMethods } = await res.json();
+          setSavedCards(paymentMethods || []);
+          if (paymentMethods?.length > 0) {
+            setSelectedSavedCard(paymentMethods[0].id);
+            setCardLast4(paymentMethods[0].last4);
+          }
+        }
+      } catch {}
+    })();
+  }, []);
 
   // Timer for "Comprar Ahora"
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
@@ -124,7 +145,8 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
         quantity: mode === "buy" ? quantity : offerQty,
         delivery_email: deliveryEmail,
         delivery_phone: deliveryPhone,
-        save_card: false,
+        save_card: saveCard,
+        ...(selectedSavedCard ? { payment_method_id: selectedSavedCard } : {}),
       }),
     });
     if (!response.ok) {
@@ -231,7 +253,16 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
               <PaymentStep mode={mode} onBack={goBack} onContinue={(last4) => {
                 if (last4) setCardLast4(last4);
                 goNext();
-              }} method={paymentMethod} setMethod={setPaymentMethod} applePayAvailable={applePayAvailable} cardFormRef={cardFormRef} />
+              }} method={paymentMethod} setMethod={setPaymentMethod} applePayAvailable={applePayAvailable} cardFormRef={cardFormRef}
+                saveCard={saveCard} setSaveCard={setSaveCard}
+                savedCards={savedCards} selectedSavedCard={selectedSavedCard} setSelectedSavedCard={(id) => {
+                  setSelectedSavedCard(id);
+                  if (id) {
+                    const card = savedCards.find(c => c.id === id);
+                    if (card) setCardLast4(card.last4);
+                  }
+                }}
+              />
             )}
             {step === "review" && (
               <ReviewStep
@@ -644,19 +675,32 @@ function DeliveryStep({
 
 /* ── Payment step ──────────────────────────────────── */
 
-function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvailable, cardFormRef }: { mode: Mode; onBack: () => void; onContinue: (last4?: string) => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void; applePayAvailable: boolean; cardFormRef: React.RefObject<StripeCardFormRef | null> }) {
-  const [saveCard, setSaveCard] = useState(false);
-  const [hasSavedCard] = useState(false);
+function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvailable, cardFormRef, saveCard, setSaveCard, savedCards, selectedSavedCard, setSelectedSavedCard }: {
+  mode: Mode; onBack: () => void; onContinue: (last4?: string) => void;
+  method: "card" | "apple"; setMethod: (m: "card" | "apple") => void;
+  applePayAvailable: boolean; cardFormRef: React.RefObject<StripeCardFormRef | null>;
+  saveCard: boolean; setSaveCard: (v: boolean) => void;
+  savedCards: { id: string; brand: string; last4: string; exp_month: number; exp_year: number }[];
+  selectedSavedCard: string | null; setSelectedSavedCard: (id: string | null) => void;
+}) {
   const [showNewCard, setShowNewCard] = useState(false);
   const [cardReady, setCardReady] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [cardError, setCardError] = useState("");
 
-  const showCardForm = !hasSavedCard || showNewCard;
+  const hasSavedCards = savedCards.length > 0;
+  const usingSavedCard = hasSavedCards && !showNewCard && selectedSavedCard;
+  const showCardForm = !usingSavedCard;
 
   const handleContinue = async () => {
     if (method === "apple") {
       onContinue();
+      return;
+    }
+    if (usingSavedCard) {
+      // Using saved card — already verified, just proceed
+      const card = savedCards.find(c => c.id === selectedSavedCard);
+      onContinue(card?.last4);
       return;
     }
     if (!cardFormRef.current) return;
@@ -709,18 +753,29 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvai
 
       {method === "card" ? (
         <>
-          {hasSavedCard && !showNewCard && (
+          {hasSavedCards && !showNewCard && (
             <div className="mb-6">
-              <div className="flex items-center gap-3 p-4 bg-[#111] border border-[#222] mb-3">
-                <CreditCard className="w-5 h-5 text-[#888]" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold">Tarjeta guardada</div>
-                  <div className="text-[11px] text-[#555]">Tarjeta de crédito/débito</div>
-                </div>
-              </div>
+              {savedCards.map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => setSelectedSavedCard(card.id)}
+                  className={`w-full flex items-center gap-3 p-4 bg-[#111] border mb-2 cursor-pointer text-left transition-colors ${
+                    selectedSavedCard === card.id ? "border-[#EA580B]" : "border-[#222]"
+                  }`}
+                >
+                  <CreditCard className="w-5 h-5 text-[#888]" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold capitalize">{card.brand} •••• {card.last4}</div>
+                    <div className="text-[11px] text-[#555]">Expira {String(card.exp_month).padStart(2, "0")}/{card.exp_year}</div>
+                  </div>
+                  {selectedSavedCard === card.id && (
+                    <div className="w-4 h-4 rounded-full bg-[#EA580B] shrink-0" />
+                  )}
+                </button>
+              ))}
               <button
-                onClick={() => setShowNewCard(true)}
-                className="text-xs text-[#EA580B] font-semibold cursor-pointer hover:underline"
+                onClick={() => { setShowNewCard(true); setSelectedSavedCard(null); }}
+                className="text-xs text-[#EA580B] font-semibold cursor-pointer hover:underline bg-transparent border-none"
               >
                 + Agregar nueva tarjeta
               </button>
@@ -747,10 +802,10 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvai
                 </button>
               </div>
 
-              {hasSavedCard && (
+              {hasSavedCards && (
                 <button
-                  onClick={() => setShowNewCard(false)}
-                  className="text-xs text-[#888] font-semibold cursor-pointer hover:text-white mb-4 block"
+                  onClick={() => { setShowNewCard(false); setSelectedSavedCard(savedCards[0]?.id || null); }}
+                  className="text-xs text-[#888] font-semibold cursor-pointer hover:text-white mb-4 block bg-transparent border-none"
                 >
                   Usar tarjeta guardada
                 </button>

@@ -117,7 +117,7 @@ export default function TrendingEvents() {
                     )}
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (isLoggedIn) toggle(events[mobileSlide].id); }}
-                      className={`absolute bottom-2 right-2 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm cursor-pointer border-none ${savedIds.has(events[mobileSlide].id) ? "text-red-500" : "text-white"}`}
+                      className={`absolute bottom-2 right-2 w-7 h-7 bg-black/50 flex items-center justify-center backdrop-blur-sm cursor-pointer border-none ${savedIds.has(events[mobileSlide].id) ? "text-red-500" : "text-white"}`}
                     >
                       <Heart className={`w-3.5 h-3.5 ${savedIds.has(events[mobileSlide].id) ? "fill-red-500" : ""}`} />
                     </button>
@@ -177,7 +177,7 @@ export default function TrendingEvents() {
                     e.stopPropagation();
                     if (isLoggedIn) toggle(event.id);
                   }}
-                  className={`absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm cursor-pointer border-none transition-all hover:scale-110 ${
+                  className={`absolute bottom-2.5 right-2.5 w-8 h-8 bg-black/50 flex items-center justify-center backdrop-blur-sm cursor-pointer border-none transition-all hover:scale-110 ${
                     savedIds.has(event.id) ? "text-red-500" : "text-white"
                   }`}
                 >

@@ -44,7 +44,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <button
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (isLoggedIn) toggle(event.id); }}
-            className={`absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm cursor-pointer border-none transition-all hover:scale-110 ${isSaved ? "text-red-500" : "text-white"}`}
+            className={`absolute bottom-2.5 right-2.5 w-8 h-8 bg-black/50 flex items-center justify-center backdrop-blur-sm cursor-pointer border-none transition-all hover:scale-110 ${isSaved ? "text-red-500" : "text-white"}`}
           >
             <Heart className={`w-4 h-4 ${isSaved ? "fill-red-500" : ""}`} />
           </button>
@@ -71,7 +71,7 @@ export default function EventCard({ event, index = 0 }: EventCardProps) {
         </div>
         <button
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (isLoggedIn) toggle(event.id); }}
-          className={`shrink-0 w-8 h-8 rounded-full bg-black/30 flex items-center justify-center cursor-pointer border-none ${isSaved ? "text-red-500" : "text-white"}`}
+          className={`shrink-0 w-8 h-8 bg-black/30 flex items-center justify-center cursor-pointer border-none ${isSaved ? "text-red-500" : "text-white"}`}
         >
           <Heart className={`w-3.5 h-3.5 ${isSaved ? "fill-red-500" : ""}`} />
         </button>

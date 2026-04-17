@@ -33,17 +33,13 @@ export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: 
   const typeLabel = isVip ? "VIP" : "GA";
 
   return (
-    <div className={`flex items-center gap-4 py-4 border-b border-[#1a1a1a] ${isOwn ? "border-l-2 border-l-[#EA580B] pl-3 -ml-1" : ""}`}>
-      <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0 relative`}>
-        {isOwn && (
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#1a1a1a] border border-[#333] flex items-center justify-center">
-            <Pencil className="w-2.5 h-2.5 text-[#888]" />
-          </div>
-        )}
-      </div>
+    <div className="flex items-center gap-4 py-4 border-b border-[#1a1a1a]">
+      <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold">{ticketLabel}</div>
-        <div className="text-xs text-[#888]">{sellerName}</div>
+        <div className={`text-xs ${isOwn ? "text-[#EA580B]" : "text-[#888]"}`}>
+          {isOwn ? "Tú · Editar" : sellerName}
+        </div>
       </div>
       <button
         onClick={() => isOwn && onEdit ? onEdit(listing) : onSelect(listing)}

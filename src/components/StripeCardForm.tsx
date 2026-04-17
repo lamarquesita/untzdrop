@@ -205,11 +205,17 @@ export function useStripePayment(applePayConfig?: { total: number; label: string
     if (!stripe || !elements) return "";
     const cardElement = elements.getElement(CardNumberElement);
     if (!cardElement) return "";
-    const { paymentMethod: pm } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardElement,
-    });
-    return pm?.card?.last4 || "";
+    try {
+      const { token, error } = await stripe.createToken(cardElement);
+      if (error) {
+        console.error("getCardLast4 error:", error.message);
+        return "";
+      }
+      return token?.card?.last4 || "";
+    } catch (e) {
+      console.error("getCardLast4 exception:", e);
+      return "";
+    }
   };
 
   return { confirmPayment, confirmWithApplePay, applePayAvailable, getCardLast4, ready: !!stripe && !!elements };

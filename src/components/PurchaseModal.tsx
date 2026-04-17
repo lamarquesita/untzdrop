@@ -63,7 +63,6 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
   // Payment processing state
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string>("");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "apple">("card");
 
   // Timer for "Comprar Ahora"
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
@@ -106,7 +105,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
     goNext();
   };
 
-  const { confirmPayment, confirmWithApplePay } = useStripePayment();
+  const { confirmPayment } = useStripePayment();
 
   const fetchClientSecret = async () => {
     const authHeaders = await getAuthHeaders();
@@ -136,20 +135,8 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
     setPaymentError("");
 
     try {
-      let paymentIntent;
-      if (paymentMethod === "apple") {
-        // Apple Pay: show native sheet immediately, fetch client_secret inside handler
-        const total = mode === "buy" ? buyTotal : offerTotal;
-        paymentIntent = await confirmWithApplePay({
-          total: Math.round(total * 100),
-          label: `UntzDrop - ${event.name}`,
-          getClientSecret: fetchClientSecret,
-        });
-      } else {
-        // Card: fetch client_secret first, then confirm with card element
-        const clientSecret = await fetchClientSecret();
-        paymentIntent = await confirmPayment(clientSecret);
-      }
+      const clientSecret = await fetchClientSecret();
+      const paymentIntent = await confirmPayment(clientSecret);
 
       if (paymentIntent?.status === "succeeded") {
         alert("¡Compra exitosa! Recibirás tu código QR por correo electrónico.");
@@ -229,7 +216,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
               />
             )}
             {step === "payment" && (
-              <PaymentStep mode={mode} onBack={goBack} onContinue={goNext} method={paymentMethod} setMethod={setPaymentMethod} />
+              <PaymentStep mode={mode} onBack={goBack} onContinue={goNext} />
             )}
             {step === "review" && (
               <ReviewStep
@@ -640,19 +627,11 @@ function DeliveryStep({
 
 /* ── Payment step ──────────────────────────────────── */
 
-function PaymentStep({ mode, onBack, onContinue, method, setMethod }: { mode: Mode; onBack: () => void; onContinue: () => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void }) {
+function PaymentStep({ mode, onBack, onContinue }: { mode: Mode; onBack: () => void; onContinue: () => void }) {
   const [saveCard, setSaveCard] = useState(false);
   const [hasSavedCard] = useState(false);
   const [showNewCard, setShowNewCard] = useState(false);
-  const [isAppleDevice, setIsAppleDevice] = useState(false);
   const [cardReady, setCardReady] = useState(false);
-
-  useEffect(() => {
-    if (typeof navigator !== "undefined") {
-      const ua = navigator.userAgent;
-      setIsAppleDevice(/iPhone|iPad/.test(ua));
-    }
-  }, []);
 
   const showCardForm = !hasSavedCard || showNewCard;
 
@@ -661,34 +640,7 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod }: { mode: Mo
       {/* Title */}
       <h3 className="text-base font-bold mb-6">Detalles de pago</h3>
 
-      {/* Apple Pay toggle — mobile only */}
-      {isAppleDevice && (
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setMethod("card")}
-            className={`flex-1 py-2.5 text-sm font-semibold text-center transition-colors ${
-              method === "card"
-                ? "bg-[#2C2C2C] text-white"
-                : "bg-transparent text-[#555] hover:text-[#888]"
-            }`}
-          >
-            Tarjeta
-          </button>
-          <button
-            onClick={() => setMethod("apple")}
-            className={`flex-1 py-2.5 text-sm font-semibold text-center transition-colors ${
-              method === "apple"
-                ? "bg-[#2C2C2C] text-white"
-                : "bg-transparent text-[#555] hover:text-[#888]"
-            }`}
-          >
-            Apple Pay
-          </button>
-        </div>
-      )}
-
-      {method === "card" ? (
-        <>
+      <>
           {hasSavedCard && !showNewCard && (
             <div className="mb-6">
               <div className="flex items-center gap-3 p-4 bg-[#111] border border-[#222] mb-3">
@@ -751,18 +703,6 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod }: { mode: Mo
             </div>
           )}
         </>
-      ) : (
-        <div className="flex flex-col items-center py-8 mb-6">
-          <div className="w-16 h-16 bg-[#111] border border-[#222] flex items-center justify-center mb-4">
-            <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current">
-              <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-            </svg>
-          </div>
-          <p className="text-sm text-[#888] text-center">
-            Haz clic en continuar para pagar con Apple Pay
-          </p>
-        </div>
-      )}
 
       <div className="flex gap-3">
         <button

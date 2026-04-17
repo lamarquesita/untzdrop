@@ -64,11 +64,42 @@ const StripeCardForm = forwardRef<StripeCardFormRef, StripeCardFormProps>(functi
       if (!stripe || !elements) return { last4: "", brand: "", error: "Stripe no está listo" };
       const cardElement = elements.getElement(CardNumberElement);
       if (!cardElement) return { last4: "", brand: "", error: "Tarjeta no encontrada" };
-      const { token, error } = await stripe.createToken(cardElement);
-      if (error) {
-        return { last4: "", brand: "", error: error.message || "Tarjeta inválida" };
+
+      try {
+        // Get a SetupIntent from the server for $0 bank verification
+        const { getAuthHeaders } = await import("@/lib/supabase");
+        const authHeaders = await getAuthHeaders();
+        const res = await fetch("/api/verify-card", {
+          method: "POST",
+          headers: authHeaders,
+        });
+
+        if (!res.ok) {
+          return { last4: "", brand: "", error: "Error al verificar tarjeta" };
+        }
+
+        const { client_secret } = await res.json();
+
+        // Confirm the SetupIntent with the card — this does a real $0 auth with the bank
+        const { setupIntent, error: setupError } = await stripe.confirmCardSetup(client_secret, {
+          payment_method: { card: cardElement },
+        });
+
+        if (setupError) {
+          return { last4: "", brand: "", error: setupError.message || "Tarjeta rechazada" };
+        }
+
+        // Extract last4 from the confirmed payment method
+        if (setupIntent?.payment_method && typeof setupIntent.payment_method === 'string') {
+          // We need to get last4 from a token as fallback
+          const { token } = await stripe.createToken(cardElement);
+          return { last4: token?.card?.last4 || "", brand: token?.card?.brand || "" };
+        }
+
+        return { last4: "", brand: "" };
+      } catch {
+        return { last4: "", brand: "", error: "Error al verificar tarjeta" };
       }
-      return { last4: token?.card?.last4 || "", brand: token?.card?.brand || "" };
     },
   }));
 

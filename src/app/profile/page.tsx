@@ -82,6 +82,9 @@ export default function ProfilePage() {
   const [copied, setCopied] = useState(false);
   const [mobileWalletTab, setMobileWalletTab] = useState<"wallet" | "payout">("wallet");
   const [mobileWalletDetail, setMobileWalletDetail] = useState<"balance" | "credit" | null>(null);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [editingBio, setEditingBio] = useState(false);
+  const [bioText, setBioText] = useState("");
 
   const loadProfile = useCallback(async () => {
     try {
@@ -218,8 +221,21 @@ export default function ProfilePage() {
   };
 
   const removePhoto = async (idx: number) => {
-    // For now just remove from UI — avatar stays until replaced
     setPhotos((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSaveBio = async () => {
+    setEditingBio(false);
+    if (bioText === (profile?.bio || "")) return;
+    try {
+      const authHeaders = await getAuthHeaders();
+      await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify({ bio: bioText }),
+      });
+      setProfile((prev: any) => prev ? { ...prev, bio: bioText } : prev);
+    } catch {}
   };
 
   if (loading) {
@@ -250,28 +266,73 @@ export default function ProfilePage() {
       <div className="md:hidden flex-1">
         {/* Profile header */}
         <div className="px-4 pt-6 pb-5 text-center">
-          <div className="w-24 h-24 mx-auto mb-3 relative">
-            {photos[0] ? (
-              <img src={photos[0]} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <button onClick={handleAddPhoto} className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex flex-col items-center justify-center cursor-pointer gap-1">
-                <Plus className="w-5 h-5 text-[#555]" />
-                <span className="text-[10px] text-[#555]">Foto</span>
-              </button>
-            )}
-            {photos[0] && (
-              <button onClick={handleAddPhoto} className="absolute bottom-0 right-0 w-7 h-7 bg-[#EA580B] flex items-center justify-center cursor-pointer border-2 border-background">
-                <Plus className="w-3.5 h-3.5 text-white" />
-              </button>
-            )}
+          <div className="grid grid-cols-2 gap-3 max-w-[176px] mx-auto mb-3">
+            {/* Main profile photo */}
+            <div className="w-20 h-20 relative overflow-hidden cursor-pointer" onClick={handleAddPhoto}>
+              {photos[0] ? (
+                <img src={photos[0]} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-[#555]" />
+                </div>
+              )}
+            </div>
+            {/* Additional photo slots */}
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-20 h-20 relative overflow-hidden cursor-pointer" onClick={handleAddPhoto}>
+                {photos[i] ? (
+                  <img src={photos[i]} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex items-center justify-center">
+                    <Plus className="w-5 h-5 text-[#555]" />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
+
+          {/* Preview / Edit buttons */}
+          <div className="flex justify-center gap-3 mb-3">
+            <button className="text-xs text-[#888] font-semibold px-4 py-1.5 border border-[#333] bg-transparent cursor-pointer hover:text-white transition-colors">
+              Vista previa
+            </button>
+            <button
+              onClick={() => setEditingProfile(true)}
+              className="text-xs text-[#EA580B] font-semibold px-4 py-1.5 border border-[#EA580B]/30 bg-transparent cursor-pointer hover:bg-[#EA580B]/10 transition-colors"
+            >
+              Editar perfil
+            </button>
+          </div>
+
           <h1 className="text-xl font-extrabold">{displayName}</h1>
           <div className="text-xs text-[#666] mt-1">Miembro desde {joinStr}</div>
-          {profile?.bio ? (
-            <p className="text-sm text-[#888] mt-2 leading-relaxed">{profile.bio}</p>
-          ) : (
-            <p className="text-sm text-[#555] mt-2">Agrega una bio...</p>
-          )}
+          <div className="mt-2">
+            {editingBio ? (
+              <div>
+                <input
+                  type="text"
+                  value={bioText}
+                  onChange={(e) => { if (e.target.value.length <= 50) setBioText(e.target.value); }}
+                  onBlur={handleSaveBio}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSaveBio(); }}
+                  placeholder="Agrega una bio..."
+                  maxLength={50}
+                  autoFocus
+                  className="w-full bg-transparent text-sm text-white text-center outline-none border-b border-[#EA580B] pb-1"
+                />
+                <div className="text-[10px] text-[#555] mt-1">{bioText.length}/50</div>
+              </div>
+            ) : (
+              <div onClick={() => { setBioText(profile?.bio || ""); setEditingBio(true); }} className="cursor-pointer">
+                {profile?.bio ? (
+                  <p className="text-sm text-[#888] leading-relaxed border-b border-[#222] pb-1 inline-block">{profile.bio}</p>
+                ) : (
+                  <p className="text-sm text-[#555] border-b border-[#222] pb-1 inline-block">Agrega una bio...</p>
+                )}
+                <div className="text-[10px] text-[#555] mt-1">{(profile?.bio || "").length}/50</div>
+              </div>
+            )}
+          </div>
           <div className="flex items-center justify-center gap-5 mt-3">
             <div className="text-center">
               <div className="text-lg font-bold">{stats.exchanges}</div>
@@ -550,9 +611,31 @@ export default function ProfilePage() {
                 <span>{stats.reviewCount} reseñas</span>
               </div>
 
-              {profile?.bio && (
-                <p className="text-sm text-[#888] mt-3 leading-relaxed">{profile.bio}</p>
-              )}
+              <div className="mt-3">
+                {editingBio ? (
+                  <div>
+                    <input
+                      type="text"
+                      value={bioText}
+                      onChange={(e) => { if (e.target.value.length <= 50) setBioText(e.target.value); }}
+                      onBlur={handleSaveBio}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleSaveBio(); }}
+                      placeholder="Agrega una bio..."
+                      maxLength={50}
+                      autoFocus
+                      className="w-full bg-transparent text-sm text-white outline-none border-b border-[#EA580B] pb-1"
+                    />
+                    <div className="text-[10px] text-[#555] mt-1">{bioText.length}/50</div>
+                  </div>
+                ) : (
+                  <div onClick={() => { setBioText(profile?.bio || ""); setEditingBio(true); }} className="cursor-pointer">
+                    <p className={`text-sm leading-relaxed border-b border-[#222] pb-1 ${profile?.bio ? "text-[#888]" : "text-[#555]"}`}>
+                      {profile?.bio || "Agrega una bio..."}
+                    </p>
+                    <div className="text-[10px] text-[#555] mt-1">{(profile?.bio || "").length}/50</div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Highlights */}

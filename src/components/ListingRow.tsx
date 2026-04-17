@@ -40,6 +40,14 @@ export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: 
         <div className="text-xs text-[#888]">{sellerName}</div>
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
+        {isOwn && onEdit && (
+          <button
+            onClick={() => onEdit(listing)}
+            className="w-7 h-7 flex items-center justify-center cursor-pointer hover:text-white transition-colors border-none bg-transparent text-[#888]"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+        )}
         <button
           onClick={() => isOwn && onEdit ? onEdit(listing) : onSelect(listing)}
           className="btn-tag-sm p-[2px] cursor-pointer hover:brightness-110 transition-all border-none"
@@ -54,16 +62,6 @@ export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: 
             </div>
           </div>
         </button>
-        {isOwn && onEdit && (
-          <button
-            onClick={() => onEdit(listing)}
-            className="btn-tag-sm p-[2px] cursor-pointer hover:brightness-110 transition-all border-none bg-[#EA580B]"
-          >
-            <div className="btn-tag-sm bg-background flex items-center px-2.5 py-1.5">
-              <Pencil className="w-3.5 h-3.5 text-[#EA580B]" />
-            </div>
-          </button>
-        )}
       </div>
     </div>
   );

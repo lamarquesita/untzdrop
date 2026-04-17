@@ -772,7 +772,12 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvai
         </button>
         <button
           onClick={onContinue}
-          className="flex-1 bg-[#EA580B] hover:bg-[#C74A09] text-white font-bold py-3.5 text-base cursor-pointer transition-colors"
+          disabled={method === "card" && showCardForm && !cardReady}
+          className={`flex-1 font-bold py-3.5 text-base transition-colors ${
+            method === "card" && showCardForm && !cardReady
+              ? "bg-[#6B3D08] text-[#A0602B] cursor-not-allowed"
+              : "bg-[#EA580B] hover:bg-[#C74A09] text-white cursor-pointer"
+          }`}
         >
           Continuar
         </button>

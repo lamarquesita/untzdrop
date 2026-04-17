@@ -21,6 +21,9 @@ export default function Navbar() {
   const [results, setResults] = useState<Event[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
+  const isLandingPage = pathname === "/";
   const [profileName, setProfileName] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -87,9 +90,13 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close mobile menu on route change
+  // Close mobile menu + search on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setMobileSearchOpen(false);
+    setQuery("");
+    setResults([]);
+    setShowResults(false);
   }, [pathname]);
 
   // Listen for open-auth-modal events from other components
@@ -282,19 +289,30 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile hamburger button — left side next to logo */}
-        <motion.button
-          className="md:hidden -order-1 mr-0 w-8 h-8 flex items-center justify-center text-white bg-transparent border-none cursor-pointer"
-          onClick={() => setMobileMenuOpen((v) => !v)}
-          whileTap={{ scale: 0.9 }}
-        >
-          <motion.div
-            animate={{ rotate: mobileMenuOpen ? 90 : 0 }}
-            transition={{ duration: 0.1 }}
+        {/* Mobile hamburger + search buttons */}
+        <div className="md:hidden -order-1 flex items-center gap-1">
+          <motion.button
+            className="w-8 h-8 flex items-center justify-center text-white bg-transparent border-none cursor-pointer"
+            onClick={() => setMobileMenuOpen((v) => !v)}
+            whileTap={{ scale: 0.9 }}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </motion.div>
-        </motion.button>
+            <motion.div
+              animate={{ rotate: mobileMenuOpen ? 90 : 0 }}
+              transition={{ duration: 0.1 }}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </motion.div>
+          </motion.button>
+          {!isLandingPage && (
+            <motion.button
+              className="w-8 h-8 flex items-center justify-center text-white bg-transparent border-none cursor-pointer"
+              onClick={() => setMobileSearchOpen((v) => !v)}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Search className="w-5 h-5" />
+            </motion.button>
+          )}
+        </div>
       </motion.nav>
 
       {/* Mobile dropdown — small popout under navbar */}
@@ -358,6 +376,80 @@ export default function Navbar() {
                   </>
                 )}
               </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile search overlay */}
+      <AnimatePresence>
+        {mobileSearchOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 z-40 md:hidden"
+              onClick={() => { setMobileSearchOpen(false); setQuery(""); setResults([]); setShowResults(false); }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            <motion.div
+              ref={mobileSearchRef}
+              className="fixed left-0 right-0 top-[56px] z-50 md:hidden bg-[#111] border-b border-[#222] shadow-2xl p-4"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.15 }}
+            >
+              <div className="bg-surface border border-border flex items-center gap-2 px-4 h-[44px]">
+                <Search className="w-4 h-4 text-muted shrink-0" />
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onFocus={() => results.length > 0 && setShowResults(true)}
+                  placeholder="Busca eventos, artistas o lugares"
+                  className="bg-transparent border-none text-white text-[13px] outline-none w-full placeholder:text-muted"
+                  autoFocus
+                />
+                {query && (
+                  <button
+                    onClick={() => { setQuery(""); setResults([]); setShowResults(false); }}
+                    className="text-muted text-sm cursor-pointer bg-transparent border-none hover:text-white"
+                  >
+                    &#10005;
+                  </button>
+                )}
+              </div>
+              {showResults && (
+                <div className="mt-2 bg-[#181818] border border-border overflow-hidden max-h-[60vh] overflow-y-auto">
+                  {results.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-sm text-muted">No se encontraron resultados</div>
+                  ) : (
+                    results.map((event) => (
+                      <div
+                        key={event.id}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#2A2A2A] cursor-pointer transition-colors"
+                        onClick={() => { setMobileSearchOpen(false); setQuery(""); setShowResults(false); router.push(`/events/${event.id}`); }}
+                      >
+                        <div className="w-10 h-10 bg-[#1a1a1a] shrink-0 overflow-hidden">
+                          {event.image_url ? (
+                            <img src={event.image_url} alt={event.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[#2a2040] to-[#2A2A2A]" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold truncate">{event.name}</div>
+                          <div className="text-xs text-text-dim truncate">{formatEventDate(event.date)} · {event.venue}</div>
+                        </div>
+                        {event.min_price != null && (
+                          <div className="text-xs font-semibold text-primary shrink-0">S/{Math.round(event.min_price)}</div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </motion.div>
           </>
         )}

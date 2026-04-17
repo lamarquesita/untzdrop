@@ -291,16 +291,17 @@ export default function ProfilePage() {
             ))}
           </div>
 
-          {/* Preview / Edit buttons */}
-          <div className="flex justify-center gap-3 mb-3">
-            <button className="text-xs text-[#888] font-semibold px-4 py-1.5 border border-[#333] bg-transparent cursor-pointer hover:text-white transition-colors">
-              Vista previa
-            </button>
+          {/* Toggle edit/preview */}
+          <div className="flex justify-center mb-3">
             <button
-              onClick={() => setEditingProfile(true)}
-              className="text-xs text-[#EA580B] font-semibold px-4 py-1.5 border border-[#EA580B]/30 bg-transparent cursor-pointer hover:bg-[#EA580B]/10 transition-colors"
+              onClick={() => setEditingProfile((v) => !v)}
+              className={`text-xs font-semibold px-5 py-1.5 border cursor-pointer transition-colors ${
+                editingProfile
+                  ? "text-[#888] border-[#333] bg-transparent hover:text-white"
+                  : "text-[#EA580B] border-[#EA580B]/30 bg-transparent hover:bg-[#EA580B]/10"
+              }`}
             >
-              Editar perfil
+              {editingProfile ? "Vista previa" : "Editar perfil"}
             </button>
           </div>
 

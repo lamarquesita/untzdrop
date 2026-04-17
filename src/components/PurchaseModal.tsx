@@ -683,8 +683,8 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvai
               <div className="flex items-center gap-3 p-4 bg-[#111] border border-[#222] mb-3">
                 <CreditCard className="w-5 h-5 text-[#888]" />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold">**** **** **** 4242</div>
-                  <div className="text-[11px] text-[#555]">Visa - Expira 12/27</div>
+                  <div className="text-sm font-semibold">Tarjeta guardada</div>
+                  <div className="text-[11px] text-[#555]">Tarjeta de crédito/débito</div>
                 </div>
               </div>
               <button
@@ -815,10 +815,8 @@ function ReviewStep({
         <div className="flex items-center justify-between text-sm">
           <span className="text-[#888]">Pago</span>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-5 bg-gradient-to-br from-[#1a1a4e] to-[#2a2a6e] border border-[#333] flex items-center justify-center">
-              <CreditCard className="w-3.5 h-3.5 text-[#888]" />
-            </div>
-            <span className="text-xs tracking-wider">4242</span>
+            <CreditCard className="w-4 h-4 text-[#888]" />
+            <span className="text-xs">Tarjeta ingresada</span>
           </div>
         </div>
       </div>

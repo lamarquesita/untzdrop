@@ -113,9 +113,14 @@ export function useStripePayment() {
     return paymentIntent;
   };
 
+  // Apple Pay: shows the native sheet immediately (preserving user gesture),
+  // then calls getClientSecret() inside the paymentmethod handler.
   const confirmWithApplePay = async (
-    clientSecret: string,
-    { total, label }: { total: number; label: string }
+    { total, label, getClientSecret }: {
+      total: number;
+      label: string;
+      getClientSecret: () => Promise<string>;
+    }
   ) => {
     if (!stripe) {
       throw new Error("Stripe not loaded");
@@ -134,31 +139,38 @@ export function useStripePayment() {
       throw new Error("Apple Pay no está disponible en este dispositivo");
     }
 
-    return new Promise<ReturnType<typeof stripe.confirmCardPayment> extends Promise<infer R> ? R extends { paymentIntent?: infer PI } ? PI : never : never>((resolve, reject) => {
+    return new Promise<import("@stripe/stripe-js").PaymentIntent | undefined>((resolve, reject) => {
       paymentRequest.on("paymentmethod", async (ev) => {
-        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-          clientSecret,
-          { payment_method: ev.paymentMethod.id },
-          { handleActions: false }
-        );
+        try {
+          const clientSecret = await getClientSecret();
 
-        if (confirmError) {
-          ev.complete("fail");
-          reject(new Error(confirmError.message || "Payment failed"));
-          return;
-        }
+          const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+            clientSecret,
+            { payment_method: ev.paymentMethod.id },
+            { handleActions: false }
+          );
 
-        ev.complete("success");
-
-        if (paymentIntent?.status === "requires_action") {
-          const { error, paymentIntent: pi } = await stripe.confirmCardPayment(clientSecret);
-          if (error) {
-            reject(new Error(error.message || "Payment failed"));
-          } else {
-            resolve(pi);
+          if (confirmError) {
+            ev.complete("fail");
+            reject(new Error(confirmError.message || "Payment failed"));
+            return;
           }
-        } else {
-          resolve(paymentIntent);
+
+          ev.complete("success");
+
+          if (paymentIntent?.status === "requires_action") {
+            const { error, paymentIntent: pi } = await stripe.confirmCardPayment(clientSecret);
+            if (error) {
+              reject(new Error(error.message || "Payment failed"));
+            } else {
+              resolve(pi);
+            }
+          } else {
+            resolve(paymentIntent);
+          }
+        } catch (err) {
+          ev.complete("fail");
+          reject(err);
         }
       });
 

@@ -108,6 +108,27 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
 
   const { confirmPayment, confirmWithApplePay } = useStripePayment();
 
+  const fetchClientSecret = async () => {
+    const authHeaders = await getAuthHeaders();
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders },
+      body: JSON.stringify({
+        listing_id: listing.id,
+        quantity: mode === "buy" ? quantity : offerQty,
+        delivery_email: deliveryEmail,
+        delivery_phone: deliveryPhone,
+        save_card: false,
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Checkout failed");
+    }
+    const { client_secret } = await response.json();
+    return client_secret as string;
+  };
+
   const handleCheckout = async () => {
     if (isProcessing) return;
 
@@ -115,36 +136,19 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
     setPaymentError("");
 
     try {
-      const authHeaders = await getAuthHeaders();
-
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
-        body: JSON.stringify({
-          listing_id: listing.id,
-          quantity: mode === "buy" ? quantity : offerQty,
-          delivery_email: deliveryEmail,
-          delivery_phone: deliveryPhone,
-          save_card: false,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Checkout failed");
-      }
-
-      const { client_secret } = await response.json();
-
       let paymentIntent;
       if (paymentMethod === "apple") {
+        // Apple Pay: show native sheet immediately, fetch client_secret inside handler
         const total = mode === "buy" ? buyTotal : offerTotal;
-        paymentIntent = await confirmWithApplePay(client_secret, {
+        paymentIntent = await confirmWithApplePay({
           total: Math.round(total * 100),
           label: `UntzDrop - ${event.name}`,
+          getClientSecret: fetchClientSecret,
         });
       } else {
-        paymentIntent = await confirmPayment(client_secret);
+        // Card: fetch client_secret first, then confirm with card element
+        const clientSecret = await fetchClientSecret();
+        paymentIntent = await confirmPayment(clientSecret);
       }
 
       if (paymentIntent?.status === "succeeded") {

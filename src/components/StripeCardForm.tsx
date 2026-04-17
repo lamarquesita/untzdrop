@@ -113,17 +113,17 @@ export function useStripePayment() {
     return paymentIntent;
   };
 
-  // Apple Pay: shows the native sheet immediately (preserving user gesture),
-  // then calls getClientSecret() inside the paymentmethod handler.
-  const confirmWithApplePay = async (
+  // Apple Pay: must call show() synchronously from button click (no awaits before it).
+  // The getClientSecret callback runs inside the paymentmethod handler after the sheet opens.
+  const confirmWithApplePay = (
     { total, label, getClientSecret }: {
       total: number;
       label: string;
       getClientSecret: () => Promise<string>;
     }
-  ) => {
+  ): Promise<import("@stripe/stripe-js").PaymentIntent | undefined> => {
     if (!stripe) {
-      throw new Error("Stripe not loaded");
+      return Promise.reject(new Error("Stripe not loaded"));
     }
 
     const paymentRequest = stripe.paymentRequest({
@@ -134,12 +134,7 @@ export function useStripePayment() {
       requestPayerEmail: true,
     });
 
-    const canMakePayment = await paymentRequest.canMakePayment();
-    if (!canMakePayment || !canMakePayment.applePay) {
-      throw new Error("Apple Pay no está disponible. Verifica que tu dispositivo tenga Apple Pay configurado y que el dominio esté verificado en Stripe.");
-    }
-
-    return new Promise<import("@stripe/stripe-js").PaymentIntent | undefined>((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       paymentRequest.on("paymentmethod", async (ev) => {
         try {
           const clientSecret = await getClientSecret();
@@ -174,6 +169,11 @@ export function useStripePayment() {
         }
       });
 
+      paymentRequest.on("cancel", () => {
+        reject(new Error("Pago cancelado"));
+      });
+
+      // show() must be called synchronously — no awaits above this line
       paymentRequest.show();
     });
   };

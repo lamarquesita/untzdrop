@@ -135,8 +135,8 @@ export function useStripePayment() {
     });
 
     const canMakePayment = await paymentRequest.canMakePayment();
-    if (!canMakePayment) {
-      throw new Error("Apple Pay no está disponible en este dispositivo");
+    if (!canMakePayment || !canMakePayment.applePay) {
+      throw new Error("Apple Pay no está disponible. Verifica que tu dispositivo tenga Apple Pay configurado y que el dominio esté verificado en Stripe.");
     }
 
     return new Promise<import("@stripe/stripe-js").PaymentIntent | undefined>((resolve, reject) => {

@@ -33,38 +33,30 @@ export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: 
   const typeLabel = isVip ? "VIP" : "GA";
 
   return (
-    <div className={`flex items-center gap-4 py-4 border-b ${isOwn ? "border-[#EA580B]/30 bg-[#EA580B]/5 -mx-2 px-2" : "border-[#1a1a1a]"}`}>
+    <div className={`flex items-center gap-4 py-4 border-b border-[#1a1a1a] ${isOwn ? "border-l-2 border-l-[#EA580B] pl-3 -ml-1" : ""}`}>
       <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold flex items-center gap-2">
           {ticketLabel}
-          {isOwn && <span className="text-[10px] text-[#EA580B] font-bold bg-[#EA580B]/15 px-1.5 py-0.5">Tu entrada</span>}
+          {isOwn && <span className="text-[10px] text-[#EA580B] font-bold">Tu entrada</span>}
         </div>
         <div className="text-xs text-[#888]">{sellerName}</div>
       </div>
-      {isOwn && onEdit ? (
-        <button
-          onClick={() => onEdit(listing)}
-          className="w-8 h-8 shrink-0 cursor-pointer hover:brightness-110 transition-all border border-[#333] bg-[#1a1a1a] flex items-center justify-center text-[#888] hover:text-white"
-        >
-          <Pencil className="w-3.5 h-3.5" />
-        </button>
-      ) : (
-        <button
-          onClick={() => onSelect(listing)}
-          className="btn-tag-sm p-[2px] shrink-0 cursor-pointer hover:brightness-110 transition-all border-none"
-          style={{ backgroundColor: color }}
-        >
-          <div className="btn-tag-sm bg-background flex items-stretch">
-            <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
-              {typeLabel}
-            </div>
-            <div className="text-white text-xs font-bold px-3 py-1.5 flex items-center">
-              S/{displayPrice(listing.price)} cu
-            </div>
+      <button
+        onClick={() => isOwn && onEdit ? onEdit(listing) : onSelect(listing)}
+        className="btn-tag-sm p-[2px] shrink-0 cursor-pointer hover:brightness-110 transition-all border-none"
+        style={{ backgroundColor: color }}
+      >
+        <div className="btn-tag-sm bg-background flex items-stretch">
+          <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
+            {typeLabel}
           </div>
-        </button>
-      )}
+          <div className="text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5">
+            S/{displayPrice(listing.price)} cu
+            {isOwn && <Pencil className="w-3 h-3 opacity-70" />}
+          </div>
+        </div>
+      </button>
     </div>
   );
 }

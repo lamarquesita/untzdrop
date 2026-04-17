@@ -97,7 +97,7 @@ export default function TrendingEvents() {
 
       {/* ═══ MOBILE: Auto-cycling slideshow ═══ */}
       <div className="md:hidden overflow-hidden relative" style={{ background: "linear-gradient(180deg, rgba(236,130,23,0.15) 0%, rgba(236,130,23,0.10) 50%, rgba(236,130,23,0.18) 100%)" }}>
-        <div className="p-3 relative h-[220px]">
+        <div className="p-3 relative h-[250px]">
           <AnimatePresence mode="wait">
             {events[mobileSlide] && (
               <motion.div

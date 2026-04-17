@@ -103,9 +103,14 @@ export default function ProfilePage() {
         setReviews(data.reviews);
         setHighlights(data.highlights);
         setSavedEvents(data.savedEvents);
-        if (data.profile?.avatar_url) {
-          setPhotos([data.profile.avatar_url]);
-        }
+        // Load all profile photos from storage
+        try {
+          const photoRes = await fetch("/api/profile/avatar", { headers: authHeaders });
+          if (photoRes.ok) {
+            const { photos: loadedPhotos } = await photoRes.json();
+            if (loadedPhotos?.length > 0) setPhotos(loadedPhotos);
+          }
+        } catch {}
       }
       if (connectRes.ok) {
         const data = await connectRes.json();
@@ -194,7 +199,8 @@ export default function ProfilePage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleAddPhoto = (slotIndex?: number) => {
+  const handleAddPhoto = () => {
+    if (photos.length >= 4) return;
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
@@ -212,16 +218,7 @@ export default function ProfilePage() {
         });
         if (res.ok) {
           const { avatar_url } = await res.json();
-          setPhotos((prev) => {
-            if (slotIndex !== undefined && slotIndex < prev.length) {
-              // Replace existing photo at this slot
-              const updated = [...prev];
-              updated[slotIndex] = avatar_url;
-              return updated;
-            }
-            // Add new photo
-            return [...prev, avatar_url];
-          });
+          setPhotos((prev) => [...prev, avatar_url]);
         }
       } catch {
         console.error("Error uploading photo");
@@ -231,7 +228,16 @@ export default function ProfilePage() {
   };
 
   const removePhoto = async (idx: number) => {
+    const url = photos[idx];
     setPhotos((prev) => prev.filter((_, i) => i !== idx));
+    try {
+      const authHeaders = await getAuthHeaders();
+      await fetch("/api/profile/avatar", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify({ url }),
+      });
+    } catch {}
   };
 
   const handleSaveBio = async () => {
@@ -286,7 +292,7 @@ export default function ProfilePage() {
                       <img
                         src={photos[i]} alt=""
                         className="w-full h-full object-cover cursor-pointer"
-                        onClick={() => handleAddPhoto(i)}
+                        onClick={() => handleAddPhoto()}
                       />
                       {i > 0 && (
                         <button
@@ -619,7 +625,7 @@ export default function ProfilePage() {
             {/* Profile Preview Card */}
             <div className="bg-[#181818] border border-[#2A2A2A] rounded-none p-5">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 shrink-0 relative cursor-pointer" onClick={() => handleAddPhoto(0)}>
+                <div className="w-14 h-14 shrink-0 relative cursor-pointer" onClick={() => handleAddPhoto()}>
                   {photos[0] ? (
                     <img src={photos[0]} alt="" className="w-full h-full object-cover" />
                   ) : (

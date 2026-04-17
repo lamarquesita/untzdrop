@@ -99,6 +99,9 @@ export default function ProfilePage() {
         setReviews(data.reviews);
         setHighlights(data.highlights);
         setSavedEvents(data.savedEvents);
+        if (data.profile?.avatar_url) {
+          setPhotos([data.profile.avatar_url]);
+        }
       }
       if (connectRes.ok) {
         const data = await connectRes.json();
@@ -191,17 +194,31 @@ export default function ProfilePage() {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
-      if (file && photos.length < 4) {
-        const url = URL.createObjectURL(file);
-        setPhotos((prev) => [...prev, url]);
+      if (!file) return;
+      try {
+        const authHeaders = await getAuthHeaders();
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/profile/avatar", {
+          method: "POST",
+          headers: authHeaders,
+          body: formData,
+        });
+        if (res.ok) {
+          const { avatar_url } = await res.json();
+          setPhotos([avatar_url]);
+        }
+      } catch {
+        console.error("Error uploading photo");
       }
     };
     input.click();
   };
 
-  const removePhoto = (idx: number) => {
+  const removePhoto = async (idx: number) => {
+    // For now just remove from UI — avatar stays until replaced
     setPhotos((prev) => prev.filter((_, i) => i !== idx));
   };
 

@@ -34,12 +34,10 @@ export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: 
 
   return (
     <div className="flex items-center gap-4 py-4 border-b border-[#1a1a1a]">
-      <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
+      <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0 ${isOwn ? "ring-1 ring-[#EA580B] ring-offset-1 ring-offset-background" : ""}`} />
       <div className="flex-1 min-w-0">
         <div className="text-sm font-semibold">{ticketLabel}</div>
-        <div className={`text-xs ${isOwn ? "text-[#EA580B]" : "text-[#888]"}`}>
-          {isOwn ? "Tú · Editar" : sellerName}
-        </div>
+        <div className="text-xs text-[#888]">{sellerName}</div>
       </div>
       <button
         onClick={() => isOwn && onEdit ? onEdit(listing) : onSelect(listing)}

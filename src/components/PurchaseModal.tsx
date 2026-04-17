@@ -228,11 +228,8 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
               />
             )}
             {step === "payment" && (
-              <PaymentStep mode={mode} onBack={goBack} onContinue={async () => {
-                if (paymentMethod === "card" && cardFormRef.current) {
-                  const last4 = await cardFormRef.current.getLast4();
-                  setCardLast4(last4);
-                }
+              <PaymentStep mode={mode} onBack={goBack} onContinue={(last4) => {
+                if (last4) setCardLast4(last4);
                 goNext();
               }} method={paymentMethod} setMethod={setPaymentMethod} applePayAvailable={applePayAvailable} cardFormRef={cardFormRef} />
             )}
@@ -647,13 +644,37 @@ function DeliveryStep({
 
 /* ── Payment step ──────────────────────────────────── */
 
-function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvailable, cardFormRef }: { mode: Mode; onBack: () => void; onContinue: () => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void; applePayAvailable: boolean; cardFormRef: React.RefObject<StripeCardFormRef | null> }) {
+function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvailable, cardFormRef }: { mode: Mode; onBack: () => void; onContinue: (last4?: string) => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void; applePayAvailable: boolean; cardFormRef: React.RefObject<StripeCardFormRef | null> }) {
   const [saveCard, setSaveCard] = useState(false);
   const [hasSavedCard] = useState(false);
   const [showNewCard, setShowNewCard] = useState(false);
   const [cardReady, setCardReady] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [cardError, setCardError] = useState("");
 
   const showCardForm = !hasSavedCard || showNewCard;
+
+  const handleContinue = async () => {
+    if (method === "apple") {
+      onContinue();
+      return;
+    }
+    if (!cardFormRef.current) return;
+    setVerifying(true);
+    setCardError("");
+    try {
+      const result = await cardFormRef.current.verifyCard();
+      if (result.error) {
+        setCardError(result.error);
+      } else {
+        onContinue(result.last4);
+      }
+    } catch {
+      setCardError("Error al verificar la tarjeta");
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   return (
     <div>
@@ -763,6 +784,12 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvai
         </div>
       )}
 
+      {cardError && (
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-300 text-xs">
+          {cardError}
+        </div>
+      )}
+
       <div className="flex gap-3">
         <button
           onClick={onBack}
@@ -771,15 +798,15 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvai
           Atrás
         </button>
         <button
-          onClick={onContinue}
-          disabled={method === "card" && showCardForm && !cardReady}
-          className={`flex-1 font-bold py-3.5 text-base transition-colors ${
-            method === "card" && showCardForm && !cardReady
+          onClick={handleContinue}
+          disabled={(method === "card" && showCardForm && !cardReady) || verifying}
+          className={`flex-1 font-bold py-3.5 text-base transition-colors flex items-center justify-center gap-2 ${
+            (method === "card" && showCardForm && !cardReady) || verifying
               ? "bg-[#6B3D08] text-[#A0602B] cursor-not-allowed"
               : "bg-[#EA580B] hover:bg-[#C74A09] text-white cursor-pointer"
           }`}
         >
-          Continuar
+          {verifying ? "Verificando..." : "Continuar"}
         </button>
       </div>
     </div>

@@ -34,6 +34,7 @@ interface StripeCardFormProps {
 
 export interface StripeCardFormRef {
   getLast4: () => Promise<string>;
+  verifyCard: () => Promise<{ last4: string; brand: string; error?: string }>;
 }
 
 const StripeCardForm = forwardRef<StripeCardFormRef, StripeCardFormProps>(function StripeCardForm({ onReady }, ref) {
@@ -58,6 +59,16 @@ const StripeCardForm = forwardRef<StripeCardFormRef, StripeCardFormProps>(functi
       } catch {
         return "";
       }
+    },
+    verifyCard: async () => {
+      if (!stripe || !elements) return { last4: "", brand: "", error: "Stripe no está listo" };
+      const cardElement = elements.getElement(CardNumberElement);
+      if (!cardElement) return { last4: "", brand: "", error: "Tarjeta no encontrada" };
+      const { token, error } = await stripe.createToken(cardElement);
+      if (error) {
+        return { last4: "", brand: "", error: error.message || "Tarjeta inválida" };
+      }
+      return { last4: token?.card?.last4 || "", brand: token?.card?.brand || "" };
     },
   }));
 

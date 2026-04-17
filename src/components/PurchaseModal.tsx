@@ -64,6 +64,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<"card" | "apple">("card");
+  const [cardLast4, setCardLast4] = useState<string>("");
 
   // Timer for "Comprar Ahora"
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
@@ -107,7 +108,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
   };
 
   const total = mode === "buy" ? buyTotal : offerTotal;
-  const { confirmPayment, confirmWithApplePay, applePayAvailable } = useStripePayment({
+  const { confirmPayment, confirmWithApplePay, applePayAvailable, getCardLast4 } = useStripePayment({
     total: Math.round(total * 100),
     label: `UntzDrop - ${event.name}`,
   });
@@ -226,7 +227,13 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
               />
             )}
             {step === "payment" && (
-              <PaymentStep mode={mode} onBack={goBack} onContinue={goNext} method={paymentMethod} setMethod={setPaymentMethod} applePayAvailable={applePayAvailable} />
+              <PaymentStep mode={mode} onBack={goBack} onContinue={async () => {
+                if (paymentMethod === "card") {
+                  const last4 = await getCardLast4();
+                  setCardLast4(last4);
+                }
+                goNext();
+              }} method={paymentMethod} setMethod={setPaymentMethod} applePayAvailable={applePayAvailable} />
             )}
             {step === "review" && (
               <ReviewStep
@@ -236,6 +243,8 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
                 onCheckout={handleCheckout}
                 isProcessing={isProcessing}
                 paymentError={paymentError}
+                cardLast4={cardLast4}
+                paymentMethod={paymentMethod}
               />
             )}
           </>
@@ -780,6 +789,8 @@ function ReviewStep({
   onCheckout,
   isProcessing,
   paymentError,
+  cardLast4,
+  paymentMethod,
 }: {
   mode: Mode;
   orderData: OrderData;
@@ -787,6 +798,8 @@ function ReviewStep({
   onCheckout: () => void;
   isProcessing: boolean;
   paymentError: string;
+  cardLast4: string;
+  paymentMethod: "card" | "apple";
 }) {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -816,7 +829,9 @@ function ReviewStep({
           <span className="text-[#888]">Pago</span>
           <div className="flex items-center gap-2">
             <CreditCard className="w-4 h-4 text-[#888]" />
-            <span className="text-xs">Tarjeta ingresada</span>
+            <span className="text-xs tracking-wider">
+              {paymentMethod === "apple" ? "Apple Pay" : cardLast4 ? `•••• ${cardLast4}` : "Tarjeta"}
+            </span>
           </div>
         </div>
       </div>

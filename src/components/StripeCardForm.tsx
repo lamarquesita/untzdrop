@@ -201,5 +201,16 @@ export function useStripePayment(applePayConfig?: { total: number; label: string
     });
   };
 
-  return { confirmPayment, confirmWithApplePay, applePayAvailable, ready: !!stripe && !!elements };
+  const getCardLast4 = async (): Promise<string> => {
+    if (!stripe || !elements) return "";
+    const cardElement = elements.getElement(CardNumberElement);
+    if (!cardElement) return "";
+    const { paymentMethod: pm } = await stripe.createPaymentMethod({
+      type: "card",
+      card: cardElement,
+    });
+    return pm?.card?.last4 || "";
+  };
+
+  return { confirmPayment, confirmWithApplePay, applePayAvailable, getCardLast4, ready: !!stripe && !!elements };
 }

@@ -194,7 +194,7 @@ export default function ProfilePage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleAddPhoto = () => {
+  const handleAddPhoto = (slotIndex?: number) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
@@ -212,7 +212,16 @@ export default function ProfilePage() {
         });
         if (res.ok) {
           const { avatar_url } = await res.json();
-          setPhotos([avatar_url]);
+          setPhotos((prev) => {
+            if (slotIndex !== undefined && slotIndex < prev.length) {
+              // Replace existing photo at this slot
+              const updated = [...prev];
+              updated[slotIndex] = avatar_url;
+              return updated;
+            }
+            // Add new photo
+            return [...prev, avatar_url];
+          });
         }
       } catch {
         console.error("Error uploading photo");
@@ -271,11 +280,28 @@ export default function ProfilePage() {
             /* Edit mode — 2x2 grid */
             <div className="grid grid-cols-2 gap-3 max-w-[176px] mx-auto mb-3">
               {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="w-20 h-20 relative overflow-hidden cursor-pointer" onClick={handleAddPhoto}>
+                <div key={i} className="w-20 h-20 relative overflow-hidden group">
                   {photos[i] ? (
-                    <img src={photos[i]} alt="" className="w-full h-full object-cover" />
+                    <>
+                      <img
+                        src={photos[i]} alt=""
+                        className="w-full h-full object-cover cursor-pointer"
+                        onClick={() => handleAddPhoto(i)}
+                      />
+                      {i > 0 && (
+                        <button
+                          onClick={() => removePhoto(i)}
+                          className="absolute top-1 right-1 w-5 h-5 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity cursor-pointer border-none"
+                        >
+                          <XIcon className="w-2.5 h-2.5 text-white" />
+                        </button>
+                      )}
+                    </>
                   ) : (
-                    <div className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex items-center justify-center">
+                    <div
+                      className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex items-center justify-center cursor-pointer"
+                      onClick={() => handleAddPhoto()}
+                    >
                       <Plus className="w-5 h-5 text-[#555]" />
                     </div>
                   )}
@@ -580,7 +606,7 @@ export default function ProfilePage() {
                 ))}
                 {photos.length < 4 && (
                   <button
-                    onClick={handleAddPhoto}
+                    onClick={() => handleAddPhoto()}
                     className="aspect-square bg-[#181818] border border-dashed border-[#2A2A2A] rounded-none flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
                   >
                     <Plus className="w-5 h-5 text-[#555]" />
@@ -593,7 +619,7 @@ export default function ProfilePage() {
             {/* Profile Preview Card */}
             <div className="bg-[#181818] border border-[#2A2A2A] rounded-none p-5">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 shrink-0 relative cursor-pointer" onClick={handleAddPhoto}>
+                <div className="w-14 h-14 shrink-0 relative cursor-pointer" onClick={() => handleAddPhoto(0)}>
                   {photos[0] ? (
                     <img src={photos[0]} alt="" className="w-full h-full object-cover" />
                   ) : (

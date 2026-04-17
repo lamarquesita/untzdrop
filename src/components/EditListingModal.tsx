@@ -78,10 +78,10 @@ export default function EditListingModal({ listing, event, onClose, onUpdated, o
   const ticketLabel = listing.ticket_type === "vip" ? "VIP" : "GA";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full sm:max-w-[420px] bg-[#111111] sm:border border-[#2A2A2A] rounded-t-2xl sm:rounded-none p-6 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full h-full sm:h-auto sm:max-w-[420px] bg-[#111111] sm:border border-[#2A2A2A] p-6 overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <h3 className="text-base font-bold">Editar entrada</h3>
           <button onClick={onClose} className="text-[22px] text-[#888] hover:text-white cursor-pointer bg-transparent border-none">&#10005;</button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Pencil } from "lucide-react";
 import { Listing, displayPrice } from "@/lib/supabase";
 
 const GRADIENT_PALETTE = [
@@ -15,9 +16,11 @@ interface ListingRowProps {
   listing: Listing;
   index: number;
   onSelect: (listing: Listing) => void;
+  isOwn?: boolean;
+  onEdit?: (listing: Listing) => void;
 }
 
-export default function ListingRow({ listing, index, onSelect }: ListingRowProps) {
+export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: ListingRowProps) {
   const gradient = GRADIENT_PALETTE[index % GRADIENT_PALETTE.length];
   const sellerName = listing.seller_name?.trim().split(" ")[0] || "Vendedor anónimo";
 
@@ -30,26 +33,38 @@ export default function ListingRow({ listing, index, onSelect }: ListingRowProps
   const typeLabel = isVip ? "VIP" : "GA";
 
   return (
-    <div className="flex items-center gap-4 py-4 border-b border-[#1a1a1a]">
+    <div className={`flex items-center gap-4 py-4 border-b ${isOwn ? "border-[#EA580B]/30 bg-[#EA580B]/5 -mx-2 px-2" : "border-[#1a1a1a]"}`}>
       <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-semibold">{ticketLabel}</div>
+        <div className="text-sm font-semibold flex items-center gap-2">
+          {ticketLabel}
+          {isOwn && <span className="text-[10px] text-[#EA580B] font-bold bg-[#EA580B]/15 px-1.5 py-0.5">Tu entrada</span>}
+        </div>
         <div className="text-xs text-[#888]">{sellerName}</div>
       </div>
-      <button
-        onClick={() => onSelect(listing)}
-        className="btn-tag-sm p-[2px] shrink-0 cursor-pointer hover:brightness-110 transition-all border-none"
-        style={{ backgroundColor: color }}
-      >
-        <div className="btn-tag-sm bg-background flex items-stretch">
-          <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
-            {typeLabel}
+      {isOwn && onEdit ? (
+        <button
+          onClick={() => onEdit(listing)}
+          className="w-8 h-8 shrink-0 cursor-pointer hover:brightness-110 transition-all border border-[#333] bg-[#1a1a1a] flex items-center justify-center text-[#888] hover:text-white"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+      ) : (
+        <button
+          onClick={() => onSelect(listing)}
+          className="btn-tag-sm p-[2px] shrink-0 cursor-pointer hover:brightness-110 transition-all border-none"
+          style={{ backgroundColor: color }}
+        >
+          <div className="btn-tag-sm bg-background flex items-stretch">
+            <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
+              {typeLabel}
+            </div>
+            <div className="text-white text-xs font-bold px-3 py-1.5 flex items-center">
+              S/{displayPrice(listing.price)} cu
+            </div>
           </div>
-          <div className="text-white text-xs font-bold px-3 py-1.5 flex items-center">
-            S/{displayPrice(listing.price)} cu
-          </div>
-        </div>
-      </button>
+        </button>
+      )}
     </div>
   );
 }

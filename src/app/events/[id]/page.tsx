@@ -15,6 +15,7 @@ import {
   Event,
   Artist,
   Listing,
+  supabase,
   getEventById,
   getListingsByEventId,
   getLineupByEventId,
@@ -23,6 +24,7 @@ import {
   formatFullDate,
   displayPrice,
 } from "@/lib/supabase";
+import EditListingModal from "@/components/EditListingModal";
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -39,6 +41,8 @@ export default function EventDetailPage() {
   const [showPriceAlert, setShowPriceAlert] = useState(false);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [alertSet, setAlertSet] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [editingListing, setEditingListing] = useState<Listing | null>(null);
 
   // Check if alert is already set for this event
   useEffect(() => {
@@ -72,6 +76,10 @@ export default function EventDetailPage() {
       setLoading(false);
       return;
     }
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setCurrentUserId(data.user.id);
+    });
 
     Promise.all([
       getEventById(id),
@@ -281,7 +289,7 @@ export default function EventDetailPage() {
                 <div className="text-center py-10 text-sm text-[#555]">No hay boletos disponibles</div>
               ) : (
                 displayListings.map((listing, idx) => (
-                  <ListingRow key={listing.id} listing={listing} index={idx} onSelect={setSelectedListing} />
+                  <ListingRow key={listing.id} listing={listing} index={idx} onSelect={setSelectedListing} isOwn={listing.seller_id === currentUserId} onEdit={setEditingListing} />
                 ))
               )
             ) : (
@@ -459,7 +467,7 @@ export default function EventDetailPage() {
           <div className="mt-2 pb-4">
             {activeTab === "sellers" ? (
               displayListings.map((listing, idx) => (
-                <ListingRow key={listing.id} listing={listing} index={idx} onSelect={setSelectedListing} />
+                <ListingRow key={listing.id} listing={listing} index={idx} onSelect={setSelectedListing} isOwn={listing.seller_id === currentUserId} onEdit={setEditingListing} />
               ))
             ) : (
               buyers.map((buyer, idx) => {
@@ -600,6 +608,23 @@ export default function EventDetailPage() {
           eventName={event.name}
           onClose={() => setShowNotifyModal(false)}
           onAlertSet={handleAlertSet}
+        />
+      )}
+
+      {editingListing && (
+        <EditListingModal
+          listing={editingListing}
+          onClose={() => setEditingListing(null)}
+          onUpdated={(updated) => {
+            setListings((prev) => prev.map((l) => l.id === updated.id ? { ...l, ...updated } : l));
+            setExtraListings((prev) => prev.map((l) => l.id === updated.id ? { ...l, ...updated } : l));
+            setEditingListing(null);
+          }}
+          onDeleted={(id) => {
+            setListings((prev) => prev.filter((l) => l.id !== id));
+            setExtraListings((prev) => prev.filter((l) => l.id !== id));
+            setEditingListing(null);
+          }}
         />
       )}
     </div>

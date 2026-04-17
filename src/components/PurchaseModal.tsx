@@ -106,7 +106,11 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
     goNext();
   };
 
-  const { confirmPayment, confirmWithApplePay } = useStripePayment();
+  const total = mode === "buy" ? buyTotal : offerTotal;
+  const { confirmPayment, confirmWithApplePay, applePayAvailable } = useStripePayment({
+    total: Math.round(total * 100),
+    label: `UntzDrop - ${event.name}`,
+  });
 
   const fetchClientSecret = async () => {
     const authHeaders = await getAuthHeaders();
@@ -138,15 +142,8 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
     try {
       let paymentIntent;
       if (paymentMethod === "apple") {
-        // Apple Pay: show native sheet immediately, fetch client_secret inside handler
-        const total = mode === "buy" ? buyTotal : offerTotal;
-        paymentIntent = await confirmWithApplePay({
-          total: Math.round(total * 100),
-          label: `UntzDrop - ${event.name}`,
-          getClientSecret: fetchClientSecret,
-        });
+        paymentIntent = await confirmWithApplePay(fetchClientSecret);
       } else {
-        // Card: fetch client_secret first, then confirm with card element
         const clientSecret = await fetchClientSecret();
         paymentIntent = await confirmPayment(clientSecret);
       }
@@ -229,7 +226,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
               />
             )}
             {step === "payment" && (
-              <PaymentStep mode={mode} onBack={goBack} onContinue={goNext} method={paymentMethod} setMethod={setPaymentMethod} />
+              <PaymentStep mode={mode} onBack={goBack} onContinue={goNext} method={paymentMethod} setMethod={setPaymentMethod} applePayAvailable={applePayAvailable} />
             )}
             {step === "review" && (
               <ReviewStep
@@ -640,19 +637,11 @@ function DeliveryStep({
 
 /* ── Payment step ──────────────────────────────────── */
 
-function PaymentStep({ mode, onBack, onContinue, method, setMethod }: { mode: Mode; onBack: () => void; onContinue: () => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void }) {
+function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvailable }: { mode: Mode; onBack: () => void; onContinue: () => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void; applePayAvailable: boolean }) {
   const [saveCard, setSaveCard] = useState(false);
   const [hasSavedCard] = useState(false);
   const [showNewCard, setShowNewCard] = useState(false);
-  const [isAppleDevice, setIsAppleDevice] = useState(false);
   const [cardReady, setCardReady] = useState(false);
-
-  useEffect(() => {
-    if (typeof navigator !== "undefined") {
-      const ua = navigator.userAgent;
-      setIsAppleDevice(/iPhone|iPad/.test(ua));
-    }
-  }, []);
 
   const showCardForm = !hasSavedCard || showNewCard;
 
@@ -662,7 +651,7 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod }: { mode: Mo
       <h3 className="text-base font-bold mb-6">Detalles de pago</h3>
 
       {/* Apple Pay toggle — mobile only */}
-      {isAppleDevice && (
+      {applePayAvailable && (
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setMethod("card")}

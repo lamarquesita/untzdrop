@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   CardNumberElement,
   CardExpiryElement,
@@ -8,6 +8,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import type { PaymentRequest } from "@stripe/stripe-js";
 
 const ELEMENT_STYLE = {
   base: {
@@ -86,9 +87,80 @@ export default function StripeCardForm({ onReady }: StripeCardFormProps) {
 }
 
 // Hook to get stripe + elements for payment confirmation
-export function useStripePayment() {
+export function useStripePayment(applePayConfig?: { total: number; label: string }) {
   const stripe = useStripe();
   const elements = useElements();
+  const [applePayAvailable, setApplePayAvailable] = useState(false);
+  const paymentRequestRef = useRef<PaymentRequest | null>(null);
+  const applePayHandlersRef = useRef<{
+    resolve: (pi: import("@stripe/stripe-js").PaymentIntent | undefined) => void;
+    reject: (err: Error) => void;
+    getClientSecret: () => Promise<string>;
+  } | null>(null);
+
+  // Pre-create PaymentRequest and check canMakePayment on mount
+  useEffect(() => {
+    if (!stripe || !applePayConfig) return;
+
+    const pr = stripe.paymentRequest({
+      country: "PE",
+      currency: "pen",
+      total: { label: applePayConfig.label, amount: applePayConfig.total },
+      requestPayerName: true,
+      requestPayerEmail: true,
+    });
+
+    pr.canMakePayment().then((result) => {
+      if (result?.applePay) {
+        setApplePayAvailable(true);
+        paymentRequestRef.current = pr;
+
+        pr.on("paymentmethod", async (ev) => {
+          const handlers = applePayHandlersRef.current;
+          if (!handlers) {
+            ev.complete("fail");
+            return;
+          }
+
+          try {
+            const clientSecret = await handlers.getClientSecret();
+
+            const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+              clientSecret,
+              { payment_method: ev.paymentMethod.id },
+              { handleActions: false }
+            );
+
+            if (confirmError) {
+              ev.complete("fail");
+              handlers.reject(new Error(confirmError.message || "Payment failed"));
+              return;
+            }
+
+            ev.complete("success");
+
+            if (paymentIntent?.status === "requires_action") {
+              const { error, paymentIntent: pi } = await stripe.confirmCardPayment(clientSecret);
+              if (error) {
+                handlers.reject(new Error(error.message || "Payment failed"));
+              } else {
+                handlers.resolve(pi);
+              }
+            } else {
+              handlers.resolve(paymentIntent);
+            }
+          } catch (err) {
+            ev.complete("fail");
+            handlers.reject(err instanceof Error ? err : new Error("Payment failed"));
+          }
+        });
+
+        pr.on("cancel", () => {
+          applePayHandlersRef.current?.reject(new Error("Pago cancelado"));
+        });
+      }
+    });
+  }, [stripe, applePayConfig?.total, applePayConfig?.label]);
 
   const confirmPayment = async (clientSecret: string) => {
     if (!stripe || !elements) {
@@ -113,70 +185,21 @@ export function useStripePayment() {
     return paymentIntent;
   };
 
-  // Apple Pay: must call show() synchronously from button click (no awaits before it).
-  // The getClientSecret callback runs inside the paymentmethod handler after the sheet opens.
+  // Apple Pay: show() is called synchronously — PaymentRequest was pre-created in useEffect.
   const confirmWithApplePay = (
-    { total, label, getClientSecret }: {
-      total: number;
-      label: string;
-      getClientSecret: () => Promise<string>;
-    }
+    getClientSecret: () => Promise<string>
   ): Promise<import("@stripe/stripe-js").PaymentIntent | undefined> => {
-    if (!stripe) {
-      return Promise.reject(new Error("Stripe not loaded"));
+    const pr = paymentRequestRef.current;
+    if (!pr) {
+      return Promise.reject(new Error("Apple Pay no está disponible"));
     }
-
-    const paymentRequest = stripe.paymentRequest({
-      country: "PE",
-      currency: "pen",
-      total: { label, amount: total },
-      requestPayerName: true,
-      requestPayerEmail: true,
-    });
 
     return new Promise((resolve, reject) => {
-      paymentRequest.on("paymentmethod", async (ev) => {
-        try {
-          const clientSecret = await getClientSecret();
-
-          const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-            clientSecret,
-            { payment_method: ev.paymentMethod.id },
-            { handleActions: false }
-          );
-
-          if (confirmError) {
-            ev.complete("fail");
-            reject(new Error(confirmError.message || "Payment failed"));
-            return;
-          }
-
-          ev.complete("success");
-
-          if (paymentIntent?.status === "requires_action") {
-            const { error, paymentIntent: pi } = await stripe.confirmCardPayment(clientSecret);
-            if (error) {
-              reject(new Error(error.message || "Payment failed"));
-            } else {
-              resolve(pi);
-            }
-          } else {
-            resolve(paymentIntent);
-          }
-        } catch (err) {
-          ev.complete("fail");
-          reject(err);
-        }
-      });
-
-      paymentRequest.on("cancel", () => {
-        reject(new Error("Pago cancelado"));
-      });
-
-      // show() must be called synchronously — no awaits above this line
-      paymentRequest.show();
+      applePayHandlersRef.current = { resolve, reject, getClientSecret };
+      // show() called synchronously from user gesture — no awaits before this
+      pr.show();
     });
   };
 
-  return { confirmPayment, confirmWithApplePay, ready: !!stripe && !!elements };
+  return { confirmPayment, confirmWithApplePay, applePayAvailable, ready: !!stripe && !!elements };
 }

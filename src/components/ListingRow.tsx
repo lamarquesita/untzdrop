@@ -32,38 +32,17 @@ export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: 
   const color = isVip ? "#D946EF" : "#3B82F6";
   const typeLabel = isVip ? "VIP" : "GA";
 
-  return isOwn ? (
-      <div className="py-4 border-t border-b border-[#EA580B]/30 my-1">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] font-bold px-2 py-0.5 text-white" style={{ backgroundColor: color }}>
-            {typeLabel}
-          </span>
-          <span className="text-xs text-[#888]">{ticketLabel}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
-          <div className="flex-1 min-w-0">
-            <div className="text-xs text-[#888]">Tu listing</div>
-            <div className="text-base font-bold">S/{displayPrice(listing.price)}</div>
-          </div>
-          <button
-            onClick={() => onEdit?.(listing)}
-            className="text-xs font-semibold text-[#EA580B] bg-[#EA580B]/10 px-4 py-2 cursor-pointer border border-[#EA580B]/30 hover:bg-[#EA580B]/20 transition-colors"
-          >
-            Editar
-          </button>
-        </div>
+  return (
+    <div className={`flex items-center gap-4 py-4 border-b border-[#1a1a1a] ${isOwn ? "border-t border-t-[#EA580B]/30 border-b-[#EA580B]/30" : ""}`}>
+      <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-semibold">{ticketLabel}</div>
+        <div className="text-xs text-[#888]">{sellerName}</div>
       </div>
-    ) : (
-      <div className="flex items-center gap-4 py-4 border-b border-[#1a1a1a]">
-        <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold">{ticketLabel}</div>
-          <div className="text-xs text-[#888]">{sellerName}</div>
-        </div>
+      <div className="flex items-center gap-1.5 shrink-0">
         <button
-          onClick={() => onSelect(listing)}
-          className="btn-tag-sm p-[2px] shrink-0 cursor-pointer hover:brightness-110 transition-all border-none"
+          onClick={() => isOwn && onEdit ? onEdit(listing) : onSelect(listing)}
+          className="btn-tag-sm p-[2px] cursor-pointer hover:brightness-110 transition-all border-none"
           style={{ backgroundColor: color }}
         >
           <div className="btn-tag-sm bg-background flex items-stretch">
@@ -75,6 +54,17 @@ export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: 
             </div>
           </div>
         </button>
+        {isOwn && onEdit && (
+          <button
+            onClick={() => onEdit(listing)}
+            className="btn-tag-sm p-[2px] cursor-pointer hover:brightness-110 transition-all border-none bg-[#EA580B]"
+          >
+            <div className="btn-tag-sm bg-background flex items-center px-2.5 py-1.5">
+              <Pencil className="w-3.5 h-3.5 text-[#EA580B]" />
+            </div>
+          </button>
+        )}
       </div>
-    );
+    </div>
+  );
 }

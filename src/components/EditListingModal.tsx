@@ -82,12 +82,10 @@ export default function EditListingModal({ listing, event, onClose, onUpdated, o
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative w-full sm:max-w-[420px] bg-[#111111] sm:border border-[#2A2A2A] rounded-t-2xl sm:rounded-none p-6 max-h-[90vh] overflow-y-auto">
-        {/* Drag handle mobile */}
-        <div className="sm:hidden flex justify-center pb-4 cursor-grab">
-          <div className="w-10 h-1 bg-[#444] rounded-full" />
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-base font-bold">Editar entrada</h3>
+          <button onClick={onClose} className="text-[22px] text-[#888] hover:text-white cursor-pointer bg-transparent border-none">&#10005;</button>
         </div>
-
-        <h3 className="text-base font-bold mb-5">Editar entrada</h3>
 
         {/* Event details */}
         <div className="flex items-center gap-3 mb-5 pb-5 border-b border-[#222]">

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Star, Ticket, CreditCard, Info, Lock, ChevronDown, Clock } from "lucide-react";
 import { Event, Listing, calcServiceFee, formatFullDate, getAuthHeaders } from "@/lib/supabase";
-import StripeCardForm, { useStripePayment } from "./StripeCardForm";
+import StripeCardForm, { useStripePayment, type StripeCardFormRef } from "./StripeCardForm";
 
 type Step = "tickets" | "delivery" | "payment" | "review";
 type Mode = "buy" | "offer";
@@ -108,7 +108,8 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
   };
 
   const total = mode === "buy" ? buyTotal : offerTotal;
-  const { confirmPayment, confirmWithApplePay, applePayAvailable, getCardLast4 } = useStripePayment({
+  const cardFormRef = useRef<StripeCardFormRef>(null);
+  const { confirmPayment, confirmWithApplePay, applePayAvailable } = useStripePayment({
     total: Math.round(total * 100),
     label: `UntzDrop - ${event.name}`,
   });
@@ -228,12 +229,12 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
             )}
             {step === "payment" && (
               <PaymentStep mode={mode} onBack={goBack} onContinue={async () => {
-                if (paymentMethod === "card") {
-                  const last4 = await getCardLast4();
+                if (paymentMethod === "card" && cardFormRef.current) {
+                  const last4 = await cardFormRef.current.getLast4();
                   setCardLast4(last4);
                 }
                 goNext();
-              }} method={paymentMethod} setMethod={setPaymentMethod} applePayAvailable={applePayAvailable} />
+              }} method={paymentMethod} setMethod={setPaymentMethod} applePayAvailable={applePayAvailable} cardFormRef={cardFormRef} />
             )}
             {step === "review" && (
               <ReviewStep
@@ -646,7 +647,7 @@ function DeliveryStep({
 
 /* ── Payment step ──────────────────────────────────── */
 
-function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvailable }: { mode: Mode; onBack: () => void; onContinue: () => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void; applePayAvailable: boolean }) {
+function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvailable, cardFormRef }: { mode: Mode; onBack: () => void; onContinue: () => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void; applePayAvailable: boolean; cardFormRef: React.RefObject<StripeCardFormRef | null> }) {
   const [saveCard, setSaveCard] = useState(false);
   const [hasSavedCard] = useState(false);
   const [showNewCard, setShowNewCard] = useState(false);
@@ -707,7 +708,7 @@ function PaymentStep({ mode, onBack, onContinue, method, setMethod, applePayAvai
 
           {showCardForm && (
             <>
-              <StripeCardForm onReady={setCardReady} />
+              <StripeCardForm ref={cardFormRef} onReady={setCardReady} />
 
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm text-[#888]">Guardar para uso futuro</span>

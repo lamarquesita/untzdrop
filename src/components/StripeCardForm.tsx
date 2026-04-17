@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import {
   CardNumberElement,
   CardExpiryElement,
@@ -32,7 +32,13 @@ interface StripeCardFormProps {
   onReady: (ready: boolean) => void;
 }
 
-export default function StripeCardForm({ onReady }: StripeCardFormProps) {
+export interface StripeCardFormRef {
+  getLast4: () => Promise<string>;
+}
+
+const StripeCardForm = forwardRef<StripeCardFormRef, StripeCardFormProps>(function StripeCardForm({ onReady }, ref) {
+  const stripe = useStripe();
+  const elements = useElements();
   const [cardComplete, setCardComplete] = useState(false);
   const [expiryComplete, setExpiryComplete] = useState(false);
   const [cvcComplete, setCvcComplete] = useState(false);
@@ -40,6 +46,20 @@ export default function StripeCardForm({ onReady }: StripeCardFormProps) {
   const updateReady = (card: boolean, expiry: boolean, cvc: boolean) => {
     onReady(card && expiry && cvc);
   };
+
+  useImperativeHandle(ref, () => ({
+    getLast4: async () => {
+      if (!stripe || !elements) return "";
+      const cardElement = elements.getElement(CardNumberElement);
+      if (!cardElement) return "";
+      try {
+        const { token } = await stripe.createToken(cardElement);
+        return token?.card?.last4 || "";
+      } catch {
+        return "";
+      }
+    },
+  }));
 
   return (
     <>
@@ -84,7 +104,9 @@ export default function StripeCardForm({ onReady }: StripeCardFormProps) {
       </div>
     </>
   );
-}
+});
+
+export default StripeCardForm;
 
 // Hook to get stripe + elements for payment confirmation
 export function useStripePayment(applePayConfig?: { total: number; label: string }) {
@@ -201,22 +223,5 @@ export function useStripePayment(applePayConfig?: { total: number; label: string
     });
   };
 
-  const getCardLast4 = async (): Promise<string> => {
-    if (!stripe || !elements) return "";
-    const cardElement = elements.getElement(CardNumberElement);
-    if (!cardElement) return "";
-    try {
-      const { token, error } = await stripe.createToken(cardElement);
-      if (error) {
-        console.error("getCardLast4 error:", error.message);
-        return "";
-      }
-      return token?.card?.last4 || "";
-    } catch (e) {
-      console.error("getCardLast4 exception:", e);
-      return "";
-    }
-  };
-
-  return { confirmPayment, confirmWithApplePay, applePayAvailable, getCardLast4, ready: !!stripe && !!elements };
+  return { confirmPayment, confirmWithApplePay, applePayAvailable, ready: !!stripe && !!elements };
 }

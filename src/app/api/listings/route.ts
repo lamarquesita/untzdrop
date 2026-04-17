@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseFromRequest, supabaseAdmin } from '@/lib/supabase-server';
-import { sendListingConfirmationEmail } from '@/lib/email';
+import { sendListingConfirmationEmail, sendTicketReviewEmail } from '@/lib/email';
 import sharp from 'sharp';
 import jsQR from 'jsqr';
 import crypto from 'crypto';
@@ -171,6 +171,34 @@ export async function POST(request: NextRequest) {
             price,
             eventImageUrl: event.image_url,
           }).catch(() => {});
+        }
+
+        // Send ticket to admin for manual review
+        if (event) {
+          const { data: signedUrl } = await supabaseAdmin.storage
+            .from('ticket-files')
+            .createSignedUrl(uploadData.path, 7 * 24 * 3600); // 7 days
+
+          if (signedUrl?.signedUrl) {
+            const { data: sellerProfile } = await supabaseAdmin
+              .from('profiles')
+              .select('full_name, email')
+              .eq('id', user.id)
+              .single();
+
+            sendTicketReviewEmail({
+              listingId: listing.id,
+              sellerName: sellerProfile?.full_name || 'Desconocido',
+              sellerEmail: sellerProfile?.email || profile?.email || null,
+              eventName: event.name,
+              eventDate: event.date,
+              venue: event.venue,
+              ticketType,
+              quantity,
+              price,
+              ticketDownloadUrl: signedUrl.signedUrl,
+            }).catch(() => {});
+          }
         }
       } catch {}
 

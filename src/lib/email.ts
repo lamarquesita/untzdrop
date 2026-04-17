@@ -550,3 +550,64 @@ export async function sendPayoutOnTheWayEmail({
     `,
   });
 }
+
+const ADMIN_EMAIL = 'ayuda@untzdrop.com';
+
+export async function sendTicketReviewEmail({
+  listingId,
+  sellerName,
+  sellerEmail,
+  eventName,
+  eventDate,
+  venue,
+  ticketType,
+  quantity,
+  price,
+  ticketDownloadUrl,
+}: {
+  listingId: number;
+  sellerName: string;
+  sellerEmail: string | null;
+  eventName: string;
+  eventDate: string;
+  venue: string;
+  ticketType: string;
+  quantity: number;
+  price: number;
+  ticketDownloadUrl: string;
+}) {
+  if (!resend) {
+    console.warn('RESEND_API_KEY not set — skipping review email');
+    return;
+  }
+
+  const dateObj = new Date(eventDate);
+  const dateStr = dateObj.toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const ticketTypeLabel = ticketType === 'vip' ? 'VIP' : 'GA';
+
+  await resend.emails.send({
+    from: 'UntzDrop <alertas@tx.untzdrop.com>',
+    to: ADMIN_EMAIL,
+    subject: `Revisar entrada - ${eventName} (Listing #${listingId})`,
+    html: `
+      <div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#111;color:#fff;padding:30px;border:1px solid #333;">
+        <h2 style="color:#ea5a0a;margin:0 0 20px;">Nueva entrada para revisar</h2>
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <tr><td style="color:#888;padding:8px 0;">Listing ID</td><td style="padding:8px 0;text-align:right;font-weight:bold;">#${listingId}</td></tr>
+          <tr><td style="color:#888;padding:8px 0;">Vendedor</td><td style="padding:8px 0;text-align:right;">${sellerName}</td></tr>
+          <tr><td style="color:#888;padding:8px 0;">Email</td><td style="padding:8px 0;text-align:right;">${sellerEmail || 'No registrado'}</td></tr>
+          <tr style="border-top:1px solid #333;"><td style="color:#888;padding:8px 0;">Evento</td><td style="padding:8px 0;text-align:right;font-weight:bold;">${eventName}</td></tr>
+          <tr><td style="color:#888;padding:8px 0;">Fecha</td><td style="padding:8px 0;text-align:right;">${dateStr}</td></tr>
+          <tr><td style="color:#888;padding:8px 0;">Lugar</td><td style="padding:8px 0;text-align:right;">${venue}</td></tr>
+          <tr style="border-top:1px solid #333;"><td style="color:#888;padding:8px 0;">Tipo</td><td style="padding:8px 0;text-align:right;">${ticketTypeLabel}</td></tr>
+          <tr><td style="color:#888;padding:8px 0;">Cantidad</td><td style="padding:8px 0;text-align:right;">${quantity}</td></tr>
+          <tr><td style="color:#888;padding:8px 0;">Precio</td><td style="padding:8px 0;text-align:right;color:#ea5a0a;font-weight:bold;">S/${price} c/u</td></tr>
+        </table>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="${ticketDownloadUrl}" style="display:inline-block;padding:14px 40px;background:#ea5a0a;color:#fff;font-size:15px;font-weight:700;text-decoration:none;">Ver / Descargar Entrada</a>
+        </div>
+        <p style="font-size:12px;color:#666;text-align:center;">Este enlace expira en 7 dias.</p>
+      </div>
+    `,
+  });
+}

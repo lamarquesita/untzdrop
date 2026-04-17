@@ -63,6 +63,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
   // Payment processing state
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "apple">("card");
 
   // Timer for "Comprar Ahora"
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
@@ -105,7 +106,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
     goNext();
   };
 
-  const { confirmPayment } = useStripePayment();
+  const { confirmPayment, confirmWithApplePay } = useStripePayment();
 
   const handleCheckout = async () => {
     if (isProcessing) return;
@@ -135,8 +136,16 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
 
       const { client_secret } = await response.json();
 
-      // Confirm payment using Stripe Elements card form
-      const paymentIntent = await confirmPayment(client_secret);
+      let paymentIntent;
+      if (paymentMethod === "apple") {
+        const total = mode === "buy" ? buyTotal : offerTotal;
+        paymentIntent = await confirmWithApplePay(client_secret, {
+          total: Math.round(total * 100),
+          label: `UntzDrop - ${event.name}`,
+        });
+      } else {
+        paymentIntent = await confirmPayment(client_secret);
+      }
 
       if (paymentIntent?.status === "succeeded") {
         alert("¡Compra exitosa! Recibirás tu código QR por correo electrónico.");
@@ -216,7 +225,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
               />
             )}
             {step === "payment" && (
-              <PaymentStep mode={mode} onBack={goBack} onContinue={goNext} />
+              <PaymentStep mode={mode} onBack={goBack} onContinue={goNext} method={paymentMethod} setMethod={setPaymentMethod} />
             )}
             {step === "review" && (
               <ReviewStep
@@ -627,9 +636,8 @@ function DeliveryStep({
 
 /* ── Payment step ──────────────────────────────────── */
 
-function PaymentStep({ mode, onBack, onContinue }: { mode: Mode; onBack: () => void; onContinue: () => void }) {
+function PaymentStep({ mode, onBack, onContinue, method, setMethod }: { mode: Mode; onBack: () => void; onContinue: () => void; method: "card" | "apple"; setMethod: (m: "card" | "apple") => void }) {
   const [saveCard, setSaveCard] = useState(false);
-  const [method, setMethod] = useState<"card" | "apple">("card");
   const [hasSavedCard] = useState(false);
   const [showNewCard, setShowNewCard] = useState(false);
   const [isAppleDevice, setIsAppleDevice] = useState(false);

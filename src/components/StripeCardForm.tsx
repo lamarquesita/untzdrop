@@ -113,5 +113,58 @@ export function useStripePayment() {
     return paymentIntent;
   };
 
-  return { confirmPayment, ready: !!stripe && !!elements };
+  const confirmWithApplePay = async (
+    clientSecret: string,
+    { total, label }: { total: number; label: string }
+  ) => {
+    if (!stripe) {
+      throw new Error("Stripe not loaded");
+    }
+
+    const paymentRequest = stripe.paymentRequest({
+      country: "PE",
+      currency: "pen",
+      total: { label, amount: total },
+      requestPayerName: true,
+      requestPayerEmail: true,
+    });
+
+    const canMakePayment = await paymentRequest.canMakePayment();
+    if (!canMakePayment) {
+      throw new Error("Apple Pay no está disponible en este dispositivo");
+    }
+
+    return new Promise<ReturnType<typeof stripe.confirmCardPayment> extends Promise<infer R> ? R extends { paymentIntent?: infer PI } ? PI : never : never>((resolve, reject) => {
+      paymentRequest.on("paymentmethod", async (ev) => {
+        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+          clientSecret,
+          { payment_method: ev.paymentMethod.id },
+          { handleActions: false }
+        );
+
+        if (confirmError) {
+          ev.complete("fail");
+          reject(new Error(confirmError.message || "Payment failed"));
+          return;
+        }
+
+        ev.complete("success");
+
+        if (paymentIntent?.status === "requires_action") {
+          const { error, paymentIntent: pi } = await stripe.confirmCardPayment(clientSecret);
+          if (error) {
+            reject(new Error(error.message || "Payment failed"));
+          } else {
+            resolve(pi);
+          }
+        } else {
+          resolve(paymentIntent);
+        }
+      });
+
+      paymentRequest.show();
+    });
+  };
+
+  return { confirmPayment, confirmWithApplePay, ready: !!stripe && !!elements };
 }

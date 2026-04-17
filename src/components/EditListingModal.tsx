@@ -108,6 +108,19 @@ export default function EditListingModal({ listing, event, onClose, onUpdated, o
           </div>
         </div>
 
+        {/* Price input */}
+        <label className="block text-xs font-semibold text-[#aaa] mb-2">Precio por entrada</label>
+        <div className="flex items-center bg-[#1A1A1A] border border-[#2A2A2A] focus-within:border-[#EA580B]/50 transition-colors mb-5">
+          <span className="text-sm text-[#888] font-semibold pl-4 pr-1">S/</span>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            min="1"
+            className="flex-1 bg-transparent border-none text-white text-sm outline-none py-3 pr-4 placeholder:text-[#555] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+        </div>
+
         {/* Quantity */}
         <label className="block text-xs font-semibold text-[#aaa] mb-2">Cantidad de entradas</label>
         <div className="flex items-center gap-3 mb-5">
@@ -126,19 +139,6 @@ export default function EditListingModal({ listing, event, onClose, onUpdated, o
           </button>
         </div>
 
-        {/* Price input */}
-        <label className="block text-xs font-semibold text-[#aaa] mb-2">Precio por entrada</label>
-        <div className="flex items-center bg-[#1A1A1A] border border-[#2A2A2A] focus-within:border-[#EA580B]/50 transition-colors mb-5">
-          <span className="text-sm text-[#888] font-semibold pl-4 pr-1">S/</span>
-          <input
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            min="1"
-            className="flex-1 bg-transparent border-none text-white text-sm outline-none py-3 pr-4 placeholder:text-[#555] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          />
-        </div>
-
         {/* Pricing breakdown */}
         <div className="bg-[#1A1A1A] border border-[#222] p-4 mb-4 space-y-3">
           <div className="flex justify-between text-sm">
@@ -151,7 +151,7 @@ export default function EditListingModal({ listing, event, onClose, onUpdated, o
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[#888]">Cargo por servicio</span>
-            <span className="text-red-400">-S/{priceNum > 0 ? Math.round(serviceFee) : "—"}</span>
+            <span>-S/{priceNum > 0 ? Math.round(serviceFee) : "—"}</span>
           </div>
           <div className="border-t border-[#333] pt-3 flex justify-between text-base font-bold">
             <span>Total a recibir</span>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Star, Info, ChevronDown, Upload, X, FileCheck, Loader2, Clock, CheckCircle2 } from "lucide-react";
+import { Star, Info, ChevronDown, Upload, X, FileCheck, Loader2, Clock, CheckCircle2, Share2, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import jsQR from "jsqr";
 import { Event, calcServiceFee, displayPrice, formatFullDate } from "@/lib/supabase";
 
@@ -69,6 +70,7 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
   // File upload state
   const [ticketFile, setTicketFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -136,8 +138,10 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
           </div>
         )}
 
-        {success ? (
-          <SuccessStep orderData={orderData} eventName={event.name} mode={mode} onClose={onClose} />
+        {processing ? (
+          <ProcessingStep label={mode === "sell" ? "Procesando venta..." : "Publicando entrada..."} />
+        ) : success ? (
+          <SuccessStep orderData={orderData} eventName={event.name} eventId={event.id} mode={mode} onClose={onClose} />
         ) : expired ? (
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <Clock className="w-12 h-12 text-[#555]" />
@@ -186,15 +190,21 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
                 onComplete={async () => {
                   if (submitting) return;
                   setSubmitting(true);
+                  setProcessing(true);
                   setSubmitError(null);
                   try {
                     const result = await onComplete(orderData, ticketFile);
                     if (result.ok) {
+                      // Keep processing visible for at least 2s for UX
+                      await new Promise(r => setTimeout(r, 2000));
+                      setProcessing(false);
                       setSuccess(true);
                     } else {
+                      setProcessing(false);
                       setSubmitError(result.error || "Error al publicar la entrada");
                     }
                   } catch {
+                    setProcessing(false);
                     setSubmitError("Error al publicar la entrada");
                   } finally {
                     setSubmitting(false);
@@ -766,17 +776,52 @@ function ReviewStep({ orderData, onBack, onComplete, submitting, error }: { orde
   );
 }
 
+/* ── Processing step ───────────────────────────────── */
+
+function ProcessingStep({ label }: { label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-5">
+      <Loader2 className="w-10 h-10 text-[#EA580B] animate-spin" />
+      <h3 className="text-lg font-bold">{label}</h3>
+      <div className="w-full max-w-[260px] h-1.5 bg-[#222] overflow-hidden">
+        <div className="h-full bg-[#EA580B] animate-[progress_2s_ease-in-out_infinite]" style={{ width: "100%", animation: "progress 2s ease-in-out infinite" }} />
+      </div>
+      <style>{`
+        @keyframes progress {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(0%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
+      <p className="text-xs text-[#666]">Esto puede tomar unos segundos...</p>
+    </div>
+  );
+}
+
 /* ── Success step ──────────────────────────────────── */
 
-function SuccessStep({ orderData, eventName, mode, onClose }: { orderData: SellOrderData; eventName: string; mode: Mode; onClose: () => void }) {
-  const ticketLabel = orderData.ticketType === "VIP" ? "VIP" : "Admisión General";
+function SuccessStep({ orderData, eventName, eventId, mode, onClose }: { orderData: SellOrderData; eventName: string; eventId: number; mode: Mode; onClose: () => void }) {
+  const ticketLabel = orderData.ticketType === "VIP" ? "VIP" : "GA";
   const isSell = mode === "sell";
+  const eventUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/events/${eventId}`;
+
+  const handleShare = async () => {
+    const text = isSell
+      ? `Vendí mi entrada para ${eventName} en UntzDrop`
+      : `Estoy vendiendo mi entrada para ${eventName} en UntzDrop`;
+    if (navigator.share) {
+      try { await navigator.share({ title: eventName, text, url: eventUrl }); } catch {}
+    } else {
+      await navigator.clipboard.writeText(eventUrl);
+      alert("Link copiado al portapapeles");
+    }
+  };
 
   return (
     <div className="flex flex-col items-center text-center py-6">
       <div className="relative mb-5">
         <div className="absolute inset-0 bg-[#EA580B]/20 blur-2xl rounded-full" />
-        <div className="relative w-16 h-16 rounded-full bg-[#EA580B]/10 border-2 border-[#EA580B] flex items-center justify-center">
+        <div className="relative w-16 h-16 bg-[#EA580B]/10 border-2 border-[#EA580B] flex items-center justify-center">
           <CheckCircle2 className="w-9 h-9 text-[#EA580B]" />
         </div>
       </div>
@@ -809,9 +854,25 @@ function SuccessStep({ orderData, eventName, mode, onClose }: { orderData: SellO
         </div>
       </div>
 
+      <div className="flex gap-3 w-full mb-3">
+        <button
+          onClick={handleShare}
+          className="flex-1 bg-[#2C2C2C] hover:bg-[#333] text-white font-semibold py-3 text-sm cursor-pointer transition-colors flex items-center justify-center gap-2 border-none"
+        >
+          <Share2 className="w-4 h-4" /> Compartir
+        </button>
+        <Link
+          href={`/events/${eventId}`}
+          onClick={onClose}
+          className="flex-1 bg-[#2C2C2C] hover:bg-[#333] text-white font-semibold py-3 text-sm cursor-pointer transition-colors flex items-center justify-center gap-2 no-underline"
+        >
+          <ExternalLink className="w-4 h-4" /> Ver evento
+        </Link>
+      </div>
+
       <button
         onClick={onClose}
-        className="w-full bg-[#EA580B] hover:bg-[#C74A09] text-white font-bold py-3.5 text-base cursor-pointer transition-colors"
+        className="w-full bg-[#EA580B] hover:bg-[#C74A09] text-white font-bold py-3.5 text-base cursor-pointer transition-colors border-none"
       >
         Listo
       </button>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Star, Ticket, CreditCard, Info, Lock, ChevronDown, Clock } from "lucide-react";
+import { Star, Ticket, CreditCard, Info, Lock, ChevronDown, Clock, Loader2, CheckCircle2, Share2, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { Event, Listing, calcServiceFee, formatFullDate, getAuthHeaders } from "@/lib/supabase";
 import StripeCardForm, { useStripePayment, type StripeCardFormRef } from "./StripeCardForm";
 
@@ -63,6 +64,8 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
   // Payment processing state
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string>("");
+  const [processingView, setProcessingView] = useState(false);
+  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"card" | "apple">("card");
   const [cardLast4, setCardLast4] = useState<string>("");
   const [saveCard, setSaveCard] = useState(false);
@@ -162,6 +165,7 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
 
     setIsProcessing(true);
     setPaymentError("");
+    setProcessingView(true);
 
     try {
       let paymentIntent;
@@ -173,12 +177,14 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
       }
 
       if (paymentIntent?.status === "succeeded") {
-        alert("¡Compra exitosa! Recibirás tu código QR por correo electrónico.");
-        onClose();
+        await new Promise(r => setTimeout(r, 2000));
+        setProcessingView(false);
+        setPurchaseSuccess(true);
       }
 
     } catch (error) {
       console.error("Checkout error:", error);
+      setProcessingView(false);
       setPaymentError(error instanceof Error ? error.message : "Error processing payment");
     } finally {
       setIsProcessing(false);
@@ -209,7 +215,11 @@ export default function PurchaseModal({ event, listing, onClose }: PurchaseModal
           </div>
         )}
 
-        {expired ? (
+        {processingView ? (
+          <PurchaseProcessingStep label={mode === "buy" ? "Procesando compra..." : "Enviando oferta..."} />
+        ) : purchaseSuccess ? (
+          <PurchaseSuccessStep event={event} orderData={orderData} mode={mode} onClose={onClose} />
+        ) : expired ? (
           <div className="flex flex-col items-center justify-center py-12 gap-4">
             <Clock className="w-12 h-12 text-[#555]" />
             <h3 className="text-lg font-bold">Tu sesión ha expirado</h3>
@@ -1004,6 +1014,110 @@ function ReviewStep({
           {isProcessing ? "Procesando..." : "Completar Compra"}
         </button>
       </div>
+    </div>
+  );
+}
+
+/* ── Purchase processing step ─────────────────────── */
+
+function PurchaseProcessingStep({ label }: { label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 gap-5">
+      <Loader2 className="w-10 h-10 text-[#EA580B] animate-spin" />
+      <h3 className="text-lg font-bold">{label}</h3>
+      <div className="w-full max-w-[260px] h-1.5 bg-[#222] overflow-hidden">
+        <div className="h-full bg-[#EA580B]" style={{ width: "100%", animation: "purchase-progress 2s ease-in-out infinite" }} />
+      </div>
+      <style>{`
+        @keyframes purchase-progress {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(0%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
+      <p className="text-xs text-[#666]">Esto puede tomar unos segundos...</p>
+    </div>
+  );
+}
+
+/* ── Purchase success step ────────────────────────── */
+
+function PurchaseSuccessStep({ event, orderData, mode, onClose }: { event: Event; orderData: OrderData; mode: Mode; onClose: () => void }) {
+  const ticketLabel = orderData.ticketType === "VIP" ? "VIP" : "GA";
+  const isBuy = mode === "buy";
+  const eventUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/events/${event.id}`;
+
+  const handleShare = async () => {
+    const text = isBuy
+      ? `Compré mi entrada para ${event.name} en UntzDrop`
+      : `Hice una oferta para ${event.name} en UntzDrop`;
+    if (navigator.share) {
+      try { await navigator.share({ title: event.name, text, url: eventUrl }); } catch {}
+    } else {
+      await navigator.clipboard.writeText(eventUrl);
+      alert("Link copiado al portapapeles");
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center text-center py-6">
+      <div className="relative mb-5">
+        <div className="absolute inset-0 bg-[#16A34A]/20 blur-2xl rounded-full" />
+        <div className="relative w-16 h-16 bg-[#16A34A]/10 border-2 border-[#16A34A] flex items-center justify-center">
+          <CheckCircle2 className="w-9 h-9 text-[#16A34A]" />
+        </div>
+      </div>
+
+      <h3 className="text-xl font-bold mb-2">
+        {isBuy ? "¡Compra exitosa!" : "¡Oferta enviada!"}
+      </h3>
+      <p className="text-sm text-[#888] mb-6 max-w-[320px]">
+        {isBuy
+          ? "Recibirás tu código QR por correo electrónico. También lo puedes ver en tu dashboard."
+          : "Te avisaremos cuando el vendedor acepte tu oferta."}
+      </p>
+
+      <div className="w-full bg-[#1a1a1a] border border-[#222] p-4 mb-6 text-left space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-[#888]">Evento</span>
+          <span className="font-semibold text-right max-w-[60%] truncate">{event.name}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-[#888]">Fecha</span>
+          <span className="font-semibold">{formatFullDate(event.date)}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-[#888]">Cantidad</span>
+          <span className="font-semibold">{orderData.quantity}x {ticketLabel}</span>
+        </div>
+        <div className="border-t border-[#222] pt-3 flex justify-between text-base font-bold">
+          <span>Total pagado</span>
+          <span className="text-[#16A34A]">S/{Math.round(orderData.total)}</span>
+        </div>
+      </div>
+
+      <div className="flex gap-3 w-full mb-3">
+        <button
+          onClick={handleShare}
+          className="flex-1 bg-[#2C2C2C] hover:bg-[#333] text-white font-semibold py-3 text-sm cursor-pointer transition-colors flex items-center justify-center gap-2 border-none"
+        >
+          <Share2 className="w-4 h-4" /> Compartir
+        </button>
+        <Link
+          href="/dashboard"
+          onClick={onClose}
+          className="flex-1 bg-[#2C2C2C] hover:bg-[#333] text-white font-semibold py-3 text-sm cursor-pointer transition-colors flex items-center justify-center gap-2 no-underline"
+        >
+          <ExternalLink className="w-4 h-4" /> Ver pedido
+        </Link>
+      </div>
+
+      <button
+        onClick={onClose}
+        className="w-full bg-[#16A34A] hover:brightness-110 text-white font-bold py-3.5 text-base cursor-pointer transition-colors border-none"
+      >
+        Listo
+      </button>
     </div>
   );
 }

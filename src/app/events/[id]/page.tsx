@@ -614,6 +614,7 @@ export default function EventDetailPage() {
       {editingListing && (
         <EditListingModal
           listing={editingListing}
+          event={event}
           onClose={() => setEditingListing(null)}
           onUpdated={(updated) => {
             setListings((prev) => prev.map((l) => l.id === updated.id ? { ...l, ...updated } : l));

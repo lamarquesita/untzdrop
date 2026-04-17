@@ -82,9 +82,10 @@ export default function ProfilePage() {
   const [copied, setCopied] = useState(false);
   const [mobileWalletTab, setMobileWalletTab] = useState<"wallet" | "payout">("wallet");
   const [mobileWalletDetail, setMobileWalletDetail] = useState<"balance" | "credit" | null>(null);
-  const [editingProfile, setEditingProfile] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(true);
   const [editingBio, setEditingBio] = useState(false);
   const [bioText, setBioText] = useState("");
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -266,30 +267,43 @@ export default function ProfilePage() {
       <div className="md:hidden flex-1">
         {/* Profile header */}
         <div className="px-4 pt-6 pb-5 text-center">
-          <div className="grid grid-cols-2 gap-3 max-w-[176px] mx-auto mb-3">
-            {/* Main profile photo */}
-            <div className="w-20 h-20 relative overflow-hidden cursor-pointer" onClick={handleAddPhoto}>
-              {photos[0] ? (
-                <img src={photos[0]} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex items-center justify-center">
-                  <Plus className="w-5 h-5 text-[#555]" />
+          {editingProfile ? (
+            /* Edit mode — 2x2 grid */
+            <div className="grid grid-cols-2 gap-3 max-w-[176px] mx-auto mb-3">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="w-20 h-20 relative overflow-hidden cursor-pointer" onClick={handleAddPhoto}>
+                  {photos[i] ? (
+                    <img src={photos[i]} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex items-center justify-center">
+                      <Plus className="w-5 h-5 text-[#555]" />
+                    </div>
+                  )}
                 </div>
+              ))}
+            </div>
+          ) : (
+            /* Preview mode — single large photo, tap to cycle */
+            <div
+              className="w-[176px] h-[176px] mx-auto mb-3 relative overflow-hidden cursor-pointer bg-[#181818]"
+              onClick={() => { if (photos.length > 0) setPreviewIndex((previewIndex + 1) % photos.length); }}
+            >
+              {photos.length > 0 ? (
+                <>
+                  <img src={photos[previewIndex % photos.length]} alt="" className="w-full h-full object-cover" />
+                  {photos.length > 1 && (
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {photos.map((_, i) => (
+                        <div key={i} className={`w-1.5 h-1.5 ${i === previewIndex % photos.length ? "bg-white" : "bg-white/40"}`} />
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[#555] text-xs">Sin fotos</div>
               )}
             </div>
-            {/* Additional photo slots */}
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="w-20 h-20 relative overflow-hidden cursor-pointer" onClick={handleAddPhoto}>
-                {photos[i] ? (
-                  <img src={photos[i]} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-[#181818] border border-dashed border-[#2A2A2A] flex items-center justify-center">
-                    <Plus className="w-5 h-5 text-[#555]" />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          )}
 
           {/* Toggle edit/preview */}
           <div className="flex justify-center mb-3">

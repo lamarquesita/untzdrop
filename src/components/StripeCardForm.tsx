@@ -86,7 +86,22 @@ const StripeCardForm = forwardRef<StripeCardFormRef, StripeCardFormProps>(functi
         });
 
         if (setupError) {
-          return { last4: "", brand: "", error: setupError.message || "Tarjeta rechazada" };
+          const spanishErrors: Record<string, string> = {
+            "Your card was declined.": "Tu tarjeta fue rechazada.",
+            "Your card has been declined.": "Tu tarjeta fue rechazada.",
+            "Your card's security code is incorrect.": "El código de seguridad de tu tarjeta es incorrecto.",
+            "Your card has expired.": "Tu tarjeta ha expirado.",
+            "Your card number is incorrect.": "El número de tu tarjeta es incorrecto.",
+            "Your card number is invalid.": "El número de tu tarjeta no es válido.",
+            "Your card's expiration month is invalid.": "El mes de vencimiento no es válido.",
+            "Your card's expiration year is invalid.": "El año de vencimiento no es válido.",
+            "Your card does not support this type of purchase.": "Tu tarjeta no permite este tipo de compra.",
+            "An error occurred while processing your card. Try again in a little bit.": "Ocurrió un error al procesar tu tarjeta. Intenta de nuevo.",
+            "Your card has insufficient funds.": "Tu tarjeta no tiene fondos suficientes.",
+          };
+          const msg = setupError.message || "";
+          const spanishMsg = spanishErrors[msg] || "Tu tarjeta fue rechazada. Verifica los datos e intenta de nuevo.";
+          return { last4: "", brand: "", error: spanishMsg };
         }
 
         // Extract last4 from the confirmed payment method

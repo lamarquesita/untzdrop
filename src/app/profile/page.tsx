@@ -428,7 +428,7 @@ export default function ProfilePage() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[10px] text-[#888] font-semibold uppercase tracking-wide mb-1">Balance</div>
+                    <div className="text-[10px] text-[#888] font-semibold uppercase tracking-wide mb-1">Saldo</div>
                     <div className="text-xl font-extrabold text-green-400">S/{wallet.balance}</div>
                   </div>
                   <ChevronRight className={`w-4 h-4 text-[#555] transition-transform ${mobileWalletDetail === "balance" ? "rotate-90" : ""}`} />
@@ -483,7 +483,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   <a className="text-xs text-[#888] underline cursor-pointer hover:text-white transition-colors">
-                    Exportar Historial de Balance
+                    Exportar Historial de Saldo
                   </a>
                 </div>
               )}
@@ -751,7 +751,7 @@ export default function ProfilePage() {
                 <div className="bg-[#181818] border border-[#2A2A2A] rounded-none p-4 md:p-5">
                   <div className="flex items-center gap-2 mb-2">
                     <DollarSign className="w-4 h-4 text-green-400" />
-                    <span className="text-[10px] md:text-xs text-[#888] font-semibold uppercase tracking-wide">Balance</span>
+                    <span className="text-[10px] md:text-xs text-[#888] font-semibold uppercase tracking-wide">Saldo</span>
                   </div>
                   <div className="text-xl md:text-2xl font-extrabold">S/{wallet.balance}</div>
                 </div>

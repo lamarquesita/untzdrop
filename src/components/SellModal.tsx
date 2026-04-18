@@ -5,6 +5,7 @@ import { Star, Info, ChevronDown, Upload, X, FileCheck, Loader2, Clock, CheckCir
 import Link from "next/link";
 import jsQR from "jsqr";
 import { Event, calcServiceFee, displayPrice, formatFullDate } from "@/lib/supabase";
+import { getTicketTypes, getTicketLabel, type TicketTypeConfig } from "@/lib/ticket-types";
 
 type Step = "tickets" | "transfer" | "review";
 type Mode = "sell" | "list";
@@ -43,7 +44,8 @@ export interface SellOrderData {
   mode: Mode;
   quantity: number;
   unitPrice: number;
-  ticketType: string;
+  ticketType: string;      // display label
+  ticketTypeValue: string; // raw DB value
   subtotal: number;
   fee: number;
   payout: number;
@@ -64,7 +66,8 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
 
   // "Publicar Venta" state
   const [listPrice, setListPrice] = useState("");
-  const [listType, setListType] = useState<"ga" | "vip">("ga");
+  const eventTicketTypes = getTicketTypes(event.id);
+  const [listType, setListType] = useState(eventTicketTypes[0]?.value || "ga");
   const [listQty, setListQty] = useState(1);
 
   // File upload state
@@ -104,8 +107,8 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
   const listPayout = listSubtotal - listFee;
 
   const orderData: SellOrderData = mode === "sell"
-    ? { mode, quantity, unitPrice: highestBuyer?.price ?? 0, ticketType: highestBuyer?.ticket_type === "vip" ? "VIP" : "GA", subtotal: sellSubtotal, fee: sellFee, payout: sellPayout }
-    : { mode, quantity: listQty, unitPrice: listPriceNum, ticketType: listType === "vip" ? "VIP" : "GA", subtotal: listSubtotal, fee: listFee, payout: listPayout };
+    ? { mode, quantity, unitPrice: highestBuyer?.price ?? 0, ticketType: highestBuyer?.ticket_type === "vip" ? "VIP" : "GA", ticketTypeValue: highestBuyer?.ticket_type ?? "ga", subtotal: sellSubtotal, fee: sellFee, payout: sellPayout }
+    : { mode, quantity: listQty, unitPrice: listPriceNum, ticketType: getTicketLabel(event.id, listType), ticketTypeValue: listType, subtotal: listSubtotal, fee: listFee, payout: listPayout };
 
   const goNext = () => {
     if (stepIndex < STEPS.length - 1) setStep(STEPS[stepIndex + 1].key);
@@ -166,7 +169,7 @@ export default function SellModal({ event, buyers, onClose, onComplete }: SellMo
                 mode={mode} setMode={setMode}
                 quantity={quantity} setQuantity={setQuantity}
                 listPrice={listPrice} setListPrice={setListPrice}
-                listType={listType} setListType={setListType}
+                listType={listType} setListType={setListType} ticketTypes={eventTicketTypes}
                 listQty={listQty} setListQty={setListQty}
                 orderData={orderData}
                 onContinue={goNext}
@@ -275,16 +278,17 @@ interface TicketsStepProps {
   mode: Mode; setMode: (m: Mode) => void;
   quantity: number; setQuantity: (n: number) => void;
   listPrice: string; setListPrice: (s: string) => void;
-  listType: "ga" | "vip"; setListType: (t: "ga" | "vip") => void;
+  listType: string; setListType: (t: string) => void;
   listQty: number; setListQty: (n: number) => void;
   orderData: SellOrderData;
   onContinue: () => void;
+  ticketTypes: TicketTypeConfig[];
 }
 
 function TicketsStep({
   highestBuyer, mode, setMode, quantity, setQuantity,
   listPrice, setListPrice, listType, setListType,
-  listQty, setListQty, orderData, onContinue,
+  listQty, setListQty, orderData, onContinue, ticketTypes,
 }: TicketsStepProps) {
   const gradientClass = GRADIENT_PALETTE[0];
   const isVip = highestBuyer?.ticket_type === "vip";
@@ -397,28 +401,22 @@ function TicketsStep({
         <>
           {/* Ticket type selector */}
           <div className="mb-5">
-            <label className="block text-sm font-semibold mb-2">Tipo de boleto</label>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setListType("ga")}
-                className={`btn-tag-sm text-xs font-bold px-4 py-1.5 transition-colors ${
-                  listType === "ga"
-                    ? "bg-[#3B82F6] text-white"
-                    : "bg-[#1a1a1a] text-[#555] hover:text-white"
-                }`}
-              >
-                General (GA)
-              </button>
-              <button
-                onClick={() => setListType("vip")}
-                className={`btn-tag-sm text-xs font-bold px-4 py-1.5 transition-colors ${
-                  listType === "vip"
-                    ? "bg-[#D946EF] text-white"
-                    : "bg-[#1a1a1a] text-[#555] hover:text-white"
-                }`}
-              >
-                VIP
-              </button>
+            <label className="block text-sm font-semibold mb-2">Tipo de entrada</label>
+            <div className="flex flex-wrap gap-2">
+              {ticketTypes.map((tt) => (
+                <button
+                  key={tt.value}
+                  onClick={() => setListType(tt.value)}
+                  className={`btn-tag-sm text-xs font-bold px-4 py-1.5 transition-colors border-none cursor-pointer ${
+                    listType === tt.value
+                      ? "text-white"
+                      : "bg-[#1a1a1a] text-[#555] hover:text-white"
+                  }`}
+                  style={listType === tt.value ? { backgroundColor: tt.color } : undefined}
+                >
+                  {tt.label}
+                </button>
+              ))}
             </div>
           </div>
 

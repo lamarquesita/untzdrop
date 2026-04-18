@@ -2,6 +2,7 @@
 
 import { Pencil } from "lucide-react";
 import { Listing, displayPrice } from "@/lib/supabase";
+import { getTicketLabel, getTicketColor } from "@/lib/ticket-types";
 
 const GRADIENT_PALETTE = [
   "from-[#EA580B] to-[#D946EF]",
@@ -15,12 +16,13 @@ const GRADIENT_PALETTE = [
 interface ListingRowProps {
   listing: Listing;
   index: number;
+  eventId: number;
   onSelect: (listing: Listing) => void;
   isOwn?: boolean;
   onEdit?: (listing: Listing) => void;
 }
 
-export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: ListingRowProps) {
+export default function ListingRow({ listing, index, eventId, onSelect, isOwn, onEdit }: ListingRowProps) {
   const gradient = GRADIENT_PALETTE[index % GRADIENT_PALETTE.length];
   const sellerName = listing.seller_name?.trim().split(" ")[0] || "Vendedor anónimo";
 
@@ -28,9 +30,8 @@ export default function ListingRow({ listing, index, onSelect, isOwn, onEdit }: 
     ? "1 entrada"
     : `1-${listing.quantity} entradas`;
 
-  const isVip = listing.ticket_type === "vip";
-  const color = isVip ? "#D946EF" : "#3B82F6";
-  const typeLabel = isVip ? "VIP" : "GA";
+  const color = getTicketColor(eventId, listing.ticket_type);
+  const typeLabel = getTicketLabel(eventId, listing.ticket_type);
 
   return (
     <div className={`flex items-center gap-4 py-4 border-b border-[#1a1a1a] ${isOwn ? "border-t border-t-[#EA580B]/30 border-b-[#EA580B]/30" : ""}`}>

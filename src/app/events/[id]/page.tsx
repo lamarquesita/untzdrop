@@ -24,6 +24,7 @@ import {
   formatFullDate,
   displayPrice,
 } from "@/lib/supabase";
+import { getTicketLabel, getTicketColor } from "@/lib/ticket-types";
 import EditListingModal from "@/components/EditListingModal";
 
 export default function EventDetailPage() {
@@ -289,7 +290,7 @@ export default function EventDetailPage() {
                 <div className="text-center py-10 text-sm text-[#555]">No hay boletos disponibles</div>
               ) : (
                 displayListings.map((listing, idx) => (
-                  <ListingRow key={listing.id} listing={listing} index={idx} onSelect={setSelectedListing} isOwn={listing.seller_id === currentUserId} onEdit={setEditingListing} />
+                  <ListingRow key={listing.id} listing={listing} index={idx} eventId={event.id} onSelect={setSelectedListing} isOwn={listing.seller_id === currentUserId} onEdit={setEditingListing} />
                 ))
               )
             ) : (
@@ -298,9 +299,8 @@ export default function EventDetailPage() {
               ) : (
                 buyers.map((buyer, idx) => {
                   const gradient = ["from-[#06B6D4] to-[#EA580B]", "from-[#D946EF] to-[#F06529]", "from-[#10B981] to-[#06B6D4]"][idx % 3];
-                  const isVip = buyer.ticket_type === "vip";
-                  const color = isVip ? "#D946EF" : "#3B82F6";
-                  const typeLabel = isVip ? "VIP" : "GA";
+                  const bColor = getTicketColor(event.id, buyer.ticket_type);
+                  const bLabel = getTicketLabel(event.id, buyer.ticket_type);
                   return (
                     <div key={buyer.id} className="flex items-center gap-3 py-3 border-b border-[#1a1a1a]">
                       <div className={`w-8 h-8 bg-gradient-to-br ${gradient} shrink-0`} />
@@ -311,11 +311,11 @@ export default function EventDetailPage() {
                       <button
                         onClick={() => setShowSellModal(true)}
                         className="btn-tag-sm p-[2px] shrink-0 cursor-pointer hover:brightness-110 transition-all border-none"
-                        style={{ backgroundColor: color }}
+                        style={{ backgroundColor: bColor }}
                       >
                         <div className="btn-tag-sm bg-background flex items-stretch">
-                          <div className="text-white text-[10px] font-bold px-2 flex items-center" style={{ backgroundColor: color }}>
-                            {typeLabel}
+                          <div className="text-white text-[10px] font-bold px-2 flex items-center" style={{ backgroundColor: bColor }}>
+                            {bLabel}
                           </div>
                           <div className="text-white text-[10px] font-bold px-2.5 py-1 flex items-center">
                             S/{displayPrice(buyer.price)}
@@ -467,7 +467,7 @@ export default function EventDetailPage() {
           <div className="mt-2 pb-4">
             {activeTab === "sellers" ? (
               displayListings.map((listing, idx) => (
-                <ListingRow key={listing.id} listing={listing} index={idx} onSelect={setSelectedListing} isOwn={listing.seller_id === currentUserId} onEdit={setEditingListing} />
+                <ListingRow key={listing.id} listing={listing} index={idx} eventId={event.id} onSelect={setSelectedListing} isOwn={listing.seller_id === currentUserId} onEdit={setEditingListing} />
               ))
             ) : (
               buyers.map((buyer, idx) => {
@@ -476,9 +476,8 @@ export default function EventDetailPage() {
                   "from-[#D946EF] to-[#F06529]",
                   "from-[#10B981] to-[#06B6D4]",
                 ][idx % 3];
-                const isVip = buyer.ticket_type === "vip";
-                const color = isVip ? "#D946EF" : "#3B82F6";
-                const typeLabel = isVip ? "VIP" : "GA";
+                const dColor = getTicketColor(event.id, buyer.ticket_type);
+                const dLabel = getTicketLabel(event.id, buyer.ticket_type);
                 return (
                   <div key={buyer.id} className="flex items-center gap-4 py-4 border-b border-[#1a1a1a]">
                     <div className={`w-10 h-10 bg-gradient-to-br ${gradient} shrink-0`} />
@@ -489,11 +488,11 @@ export default function EventDetailPage() {
                     <button
                       onClick={() => setShowSellModal(true)}
                       className="btn-tag-sm p-[2px] shrink-0 cursor-pointer hover:brightness-110 transition-all border-none"
-                      style={{ backgroundColor: color }}
+                      style={{ backgroundColor: dColor }}
                     >
                       <div className="btn-tag-sm bg-background flex items-stretch">
-                        <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: color }}>
-                          {typeLabel}
+                        <div className="text-white text-xs font-bold px-3 flex items-center" style={{ backgroundColor: dColor }}>
+                          {dLabel}
                         </div>
                         <div className="text-white text-xs font-bold px-3 py-1.5 flex items-center">
                           S/{displayPrice(buyer.price)} cu
@@ -529,7 +528,7 @@ export default function EventDetailPage() {
                 formData.append('event_id', event.id.toString());
                 formData.append('price', order.unitPrice.toString());
                 formData.append('quantity', order.quantity.toString());
-                formData.append('ticket_type', order.ticketType === "VIP" ? "vip" : "ga");
+                formData.append('ticket_type', order.ticketTypeValue);
                 formData.append('ticket_file', ticketFile);
 
                 const authHeaders = await getAuthHeaders();
@@ -558,7 +557,7 @@ export default function EventDetailPage() {
                 formData.append('event_id', event.id.toString());
                 formData.append('price', order.unitPrice.toString());
                 formData.append('quantity', order.quantity.toString());
-                formData.append('ticket_type', order.ticketType === "VIP" ? "vip" : "ga");
+                formData.append('ticket_type', order.ticketTypeValue);
                 formData.append('ticket_file', ticketFile);
 
                 const authHeaders = await getAuthHeaders();

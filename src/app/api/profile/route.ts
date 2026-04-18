@@ -11,11 +11,21 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch profile
-    const { data: profile } = await supabase
+    let { data: profile } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
+
+    // Auto-generate referral code if missing
+    if (profile && !profile.referral_code) {
+      const code = user.id.replace(/-/g, '').slice(0, 6).toUpperCase();
+      await supabaseAdmin
+        .from('profiles')
+        .update({ referral_code: code })
+        .eq('id', user.id);
+      profile = { ...profile, referral_code: code };
+    }
 
     // Fetch reviews about this user
     const { data: reviews } = await supabaseAdmin
